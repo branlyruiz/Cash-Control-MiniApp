@@ -112,3 +112,6 @@
 #variableCategoryPicker{font-weight:700}
 #newVariableCategory{white-space:nowrap}
 @media(max-width:420px){.home-data-card{padding:16px}.cashflow-display{gap:12px}.cashflow-donut{height:137px;width:137px}.cashflow-center{height:94px;width:94px}.cashflow-center strong{font-size:14px}.cashflow-legend strong{font-size:17px}}
+
+.brand-logo{background:#050505 url("./icon.svg?v=10") center center/cover no-repeat;color:transparent;overflow:hidden}
+.brand-logo::after{content:"";display:none}
