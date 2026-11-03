@@ -180,7 +180,15 @@ async function deleteSelected(){
  if(!confirm("¿Eliminar "+rows.length+" registro(s) de "+label+" en el período "+monthText(month)+"?"))return;
  await transaction("readwrite",store=>{rows.forEach(x=>store.delete(x.id))});$("conceptDialog").close();await refresh();showToast("Registros del concepto eliminados.");
 }
+async function undoLatest(){
+ const latest=entries.filter(x=>x.kind!=="fixed_plan").slice().sort((a,b)=>b.created.localeCompare(a.created))[0];
+ if(!latest){showToast("No hay registros para deshacer.");return}
+ if(latest.kind==="debt"&&entries.some(p=>p.kind==="payment"&&p.debtId===latest.id)){showToast("Elimina primero los abonos de esta deuda.");return}
+ if(!confirm("¿Deshacer el último registro: "+recordTitle(latest)+" · "+money(latest.amount)+"?"))return;
+ await transaction("readwrite",store=>store.delete(latest.id));await refresh();showToast("Último registro deshecho.");
+}
 function enhancedBind(){
+ $("undoLatest").addEventListener("click",undoLatest);
  $("categoryTabs").addEventListener("click",e=>{const b=e.target.closest("[data-category]");if(b){categoryKind=b.dataset.category;render()}});
  $("categoryAddBtn").addEventListener("click",()=>{if(categoryKind==="fixed")openFixed();else if(categoryKind==="receivable"||categoryKind==="payable"){openForm("debt");$("entryDirection").value=categoryKind;}else openForm(categoryKind==="income"?"income":"expense");if(categoryKind==="variable")$("expenseClass").value="variable"});
  $("fixedForm").addEventListener("submit",saveFixed);
