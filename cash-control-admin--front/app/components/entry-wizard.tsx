@@ -21,7 +21,7 @@ export default function EntryWizard({ categories, baselinePeriod, onSaved, onCan
   lockType?: boolean;
   paymentMode?: boolean;
 }) {
-  const firstEditableDay = firstDayAfter(baselinePeriod);
+  const firstEditableDay = [firstDayAfter(baselinePeriod), "2026-11-01"].filter((value): value is string => Boolean(value)).sort().at(-1) ?? "2026-11-01";
   const today = todayInBogota();
   const [step, setStep] = useState(lockType ? 1 : 0);
   const [mainType, setMainType] = useState<MainType | null>(lockType ? initialType === "income" || initialType === "receivable" ? "income" : initialType === "fixed" || initialType === "variable" || initialType === "payable_payment" || paymentMode ? "expense" : initialType === "payable" ? "payable" : "receivable_new" : null);
