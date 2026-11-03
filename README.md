@@ -1,34 +1,38 @@
 # Cash Control MiniApp · BRANLY RUIZ
 
-Versión móvil independiente del proyecto Cash Control. Su código fue copiado de la rama `cash-control_v1` a un repositorio separado; **no modifica el proyecto original**.
+Versión **independiente y local** de Cash Control. El repositorio original `branlyruiz/cash-control` no se modifica.
 
-## Estado
+## Abre la miniapp
 
-- Código de la aplicación copiado: frontend Next.js 16, backend FastAPI y SQLite.
-- Metadatos para instalación desde iOS/Android, manifiesto web y logotipo incluidos en `cash-control-admin--front/public`.
-- **Pendiente:** despliegue HTTPS del frontend y la API, base de datos persistente, configuración y prueba real en iPhone.
-- **Importante:** todavía no es una miniapp publicada ni incluye datos históricos privados. No habilitar GitHub Pages esperando que ejecute los servidores.
+Código de la aplicación local: **`docs/`**. Incluye HTML, CSS y JavaScript sin dependencias de servidor, IndexedDB para registrar movimientos y deudas, manifiesto PWA, service worker e iconos de iPhone/Android.
 
-## Ejecutar localmente
+Una vez activado GitHub Pages en este repositorio con **Source: Deploy from a branch → main → /docs**, la dirección será:
 
-Se requiere Node.js 20.9+ y Python 3.10+. Ejecuta desde la raíz:
+https://branlyruiz.github.io/Cash-Control-MiniApp/
 
-```bash
-make dev
-```
+En iPhone: abrir el enlace con Safari → Compartir → Añadir a pantalla de inicio.
 
-La interfaz se abre en `http://127.0.0.1:3100` y la API en `http://127.0.0.1:8000/docs`. Consulta `Makefile` para los comandos disponibles.
+## Inicio en blanco
 
-## Publicar como miniapp
+- El primer mes es **noviembre de 2026**.
+- Todos los saldos empiezan en **$0 COP** y se calculan a partir de tus movimientos.
+- No hay registros precargados, importación histórica automática ni conexión con la antigua base SQLite.
+- Las categorías se crean al añadir movimientos.
 
-1. Desplegar el backend FastAPI en un servicio Python con volumen persistente para `cash-control--backend/data/cash-control.sqlite3`.
-2. Establecer las variables de entorno privadas necesarias y crear/configurar el usuario inicial con cuidado.
-3. Desplegar el frontend Next.js en un hosting Node compatible, con `BACKEND_URL` apuntando a la API.
-4. Conectar HTTPS, probar autenticación y verificar que se registran/recuperan movimientos.
-5. En Safari para iPhone, abrir la URL del frontend y usar **Compartir → Añadir a pantalla de inicio**.
+## Funciones locales
 
-La aplicación está pensada para trabajar **con conexión**: no se añadió caché offline de los datos financieros, porque requieren consistencia con el servidor.
+- Dashboard por mes, disponible digital y efectivo, ingresos, gastos, distribución por categorías.
+- Ingresos, gastos, transferencias, deudas por cobrar y por pagar, abonos, edición y eliminación.
+- Base de datos **IndexedDB** exclusivamente en el navegador del dispositivo.
+- Exportación de copia JSON, restauración con validación y confirmación antes de reemplazar, exportación CSV, borrado de datos.
+- Tras la primera carga, el service worker permite abrirla sin internet.
 
-## Datos
+**No hay sincronización automática entre dispositivos.** Los datos pueden perderse si se borran los datos del sitio o se elimina el almacenamiento de la aplicación. Exporta copias regularmente. Se recomienda instalarla y usarla siempre desde la misma URL.
 
-La base SQLite, los archivos privados de Excel y los secretos no se incluyeron en este repositorio. El despliegue requiere almacenamiento persistente y copias de seguridad.
+## Código original conservado para referencia
+
+Los directorios `cash-control-admin--front/` y `cash-control--backend/` son una copia del proyecto Next.js/FastAPI de desarrollo. **No son necesarios para ejecutar la miniapp local de `docs/`**. No se incluyeron datos personales, SQLite ni archivos Excel originales.
+
+## Estado de publicación
+
+Los archivos PWA están preparados. GitHub Pages se habilita desde **Settings → Pages**. El repositorio por sí solo no confirma que la página esté en línea.
