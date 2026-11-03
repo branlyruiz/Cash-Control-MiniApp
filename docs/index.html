@@ -21,10 +21,10 @@
 <main>
 <section id="dashboardView" class="view active">
  <div class="period-row"><div><p class="eyebrow">RESUMEN FINANCIERO</p><h2 id="periodLabel">Noviembre 2026</h2></div><div class="period-controls"><button id="prevMonth" aria-label="Mes anterior" class="round-btn">‹</button><button id="nextMonth" aria-label="Mes siguiente" class="round-btn">›</button></div></div>
- <article class="balance-card"><div class="balance-top"><span>Disponible total</span><span class="month-chip" id="balanceMonth">Nov 2026</span></div><div class="balance-value" id="totalBalance">$ 0</div><div class="account-grid"><div><span>Cuenta digital</span><strong id="digitalBalance">$ 0</strong></div><div><span>Efectivo</span><strong id="cashBalance">$ 0</strong></div></div></article>
- <div class="metric-grid"><article class="metric"><div class="metric-icon incoming">↙</div><span>Entradas del mes</span><strong id="incomeTotal">$ 0</strong></article><article class="metric"><div class="metric-icon outgoing">↗</div><span>Salidas del mes</span><strong id="expenseTotal">$ 0</strong></article></div>
- <section class="fixed-alerts hidden" id="fixedAlerts"><div class="alert-heading"><strong>Pagos fijos por atender</strong><span id="alertsCount"></span></div><div id="alertItems"></div></section>
- <div class="metric-grid fixed-metrics"><article class="metric"><div class="metric-icon outgoing">◷</div><span>Gastos fijos pagados</span><strong id="fixedPaid">$ 0</strong></article><article class="metric"><div class="metric-icon incoming">▣</div><span>Gastos fijos previstos</span><strong id="fixedPlanned">$ 0</strong></article></div>
+ <article class="balance-card dashboard-link" data-home-target="balance" role="button" tabindex="0" aria-label="Abrir balance mensual"><div class="balance-top"><span>Disponible total</span><span class="month-chip" id="balanceMonth">Nov 2026</span></div><div class="balance-value" id="totalBalance">$ 0</div><div class="account-grid"><div><span>Cuenta digital</span><strong id="digitalBalance">$ 0</strong></div><div><span>Efectivo</span><strong id="cashBalance">$ 0</strong></div></div></article>
+ <div class="metric-grid"><button type="button" class="metric metric-button" data-home-category="income"><div class="metric-icon incoming">↙</div><span>Entradas del mes</span><strong id="incomeTotal">$ 0</strong></button><button type="button" class="metric metric-button" data-home-target="movements" data-home-filter="expense"><div class="metric-icon outgoing">↗</div><span>Salidas del mes</span><strong id="expenseTotal">$ 0</strong></button></div>
+ <section class="fixed-alerts hidden" id="fixedAlerts" aria-label="Tres pagos fijos más urgentes"><div class="alert-heading"><div><strong>Próximos pagos fijos</strong><small>Los 3 vencimientos pendientes más cercanos</small></div><button type="button" class="text-button" id="openAllFixed">Ver todos</button></div><div id="alertItems"></div></section>
+ <div class="metric-grid fixed-metrics"><button type="button" class="metric metric-button" data-home-category="fixed"><div class="metric-icon outgoing">◷</div><span>Gastos fijos pagados</span><strong id="fixedPaid">$ 0</strong></button><button type="button" class="metric metric-button" data-home-category="payable"><div class="metric-icon outgoing">▤</div><span>Deudas en contra</span><strong id="payableHome">$ 0</strong></button></div>
  <div class="section-title"><h3>Distribución de gastos</h3><span id="expenseCount">0 movimientos</span></div><section class="panel" id="categorySummary"><div class="empty-small">Tus categorías aparecerán aquí cuando registres gastos.</div></section>
  <div class="section-title"><h3>Últimos movimientos</h3><div class="section-actions"><button class="text-button" id="undoLatest">↶ Deshacer último</button><button class="text-button" data-nav="movements">Ver todos</button></div></div><section class="panel activity" id="recentTransactions"></section>
 </section>
@@ -100,6 +100,15 @@
 <p class="validation" id="formError" role="alert"></p>
 </div>
 <footer class="dialog-actions"><button type="button" class="cancel-btn" id="cancelEntry">Cancelar</button><button type="submit" class="save-btn">Guardar registro</button></footer>
+</form></dialog>
+<dialog id="quickPayDialog" class="entry-dialog"><form id="quickPayForm" novalidate>
+<header class="dialog-head"><div><p class="eyebrow">GASTO FIJO</p><h2>Confirmar pago</h2></div><button type="button" class="close" id="closeQuickPay" aria-label="Cerrar">×</button></header>
+<div class="form-content"><p id="quickPayDescription" class="quickpay-summary"></p>
+<label class="field">Importe pagado (COP)<input id="quickPayAmount" type="number" inputmode="numeric" step="1" min="1" required /></label>
+<div class="form-grid"><label class="field">Fecha de pago<input id="quickPayDate" type="date" min="2026-11-01" required /></label>
+<label class="field">Cuenta utilizada<select id="quickPayAccount"><option value="digital">Digital</option><option value="cash">Efectivo</option></select></label></div>
+<p class="small-note">Al confirmar, se registrará el gasto, se marcará como pagado y se descontará inmediatamente de la cuenta elegida.</p><p id="quickPayError" class="validation" role="alert"></p></div>
+<footer class="dialog-actions"><button type="button" id="cancelQuickPay" class="cancel-btn">Cancelar</button><button type="submit" id="confirmQuickPay" class="save-btn">Confirmar pago</button></footer>
 </form></dialog>
 <dialog id="fixedDialog" class="entry-dialog"><form id="fixedForm" method="dialog" novalidate>
 <header class="dialog-head"><div><p class="eyebrow">PAGO RECURRENTE</p><h2 id="fixedDialogTitle">Nuevo gasto fijo</h2></div><button type="button" class="close" id="closeFixedDialog" aria-label="Cerrar">×</button></header>
