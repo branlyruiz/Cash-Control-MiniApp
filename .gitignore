@@ -1,0 +1,19 @@
+**/.env
+**/.env.local
+**/.venv/
+**/__pycache__/
+**/*.pyc
+**/node_modules/
+**/.next/
+**/*.sqlite3
+**/*.sqlite3-*
+
+# Archivos locales del sistema y compilaciones
+.DS_Store
+**/*.tsbuildinfo
+cash-control-admin--front/next-env.d.ts
+cash-control-admin--front/AGENTS.md
+cash-control-admin--front/CLAUDE.md
+
+# Fuentes personales y material de referencia local
+docs/fuentes/
