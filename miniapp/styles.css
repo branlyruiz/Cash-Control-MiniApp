@@ -115,3 +115,64 @@
 
 .brand-logo{background:#050505 url("./icon.svg?v=10") center center/cover no-repeat;color:transparent;overflow:hidden}
 .brand-logo::after{content:"";display:none}
+
+/* Cash Control V11 · Inicio compacto */
+#dashboardView>.compact-priority{margin:12px 0 14px;padding:14px 15px 10px;border-radius:22px}
+.compact-priority .alert-heading{margin:0 0 10px;align-items:center}
+.compact-priority .alert-heading strong{font-size:14px;letter-spacing:-.025em}
+.compact-priority-list{display:flex;flex-direction:column;gap:5px}
+.priority-row{width:100%;min-height:49px;display:grid;grid-template-columns:37px minmax(0,1fr) auto;align-items:center;gap:11px;text-align:left;padding:7px 10px;border:1px solid #f0e1d6;border-radius:13px;background:#fff;color:var(--ink);transition:transform .15s,background .15s}
+.priority-row:active{transform:scale(.99);background:#fffbf7}
+.priority-row:focus-visible{outline:3px solid #c9a488;outline-offset:2px}
+.priority-day{display:grid;place-items:center;width:35px;height:35px;background:#fce7d7;color:#bb6643;font-size:16px;font-weight:800;border-radius:10px;line-height:1;font-variant-numeric:tabular-nums}
+.priority-name{font-size:13px;font-weight:750;line-height:1.25;min-width:0;overflow-wrap:anywhere}
+.priority-amount{font-size:13px;font-weight:800;white-space:nowrap;font-variant-numeric:tabular-nums;letter-spacing:-.025em}
+#dashboardView>.compact-metrics{gap:10px;margin-top:10px}
+#dashboardView>.compact-metrics>.metric{min-height:0;padding:13px 14px 14px;border-radius:19px;box-shadow:0 5px 20px rgba(25,42,70,.025)}
+#dashboardView>.compact-metrics .metric-icon{width:29px;height:29px;border-radius:10px;margin-bottom:10px;font-size:16px}
+#dashboardView>.compact-metrics .metric>span{font-size:11px;line-height:1.35;margin-bottom:6px}
+#dashboardView>.compact-metrics .metric strong{font-size:clamp(18px,4.7vw,23px);line-height:1.12;letter-spacing:-.045em}
+#dashboardView>.fixed-metrics{margin-top:10px}
+/* Registro UX: hoja inferior, jerarquía y selección por tipo */
+.movement-sheet{width:min(100%,500px);max-height:min(91dvh,830px);border-radius:28px}
+.movement-sheet .sheet-grabber{width:40px;height:5px;border-radius:100px;background:#dce1e8;margin:12px auto 0}
+.movement-sheet .movement-head{padding:16px 22px 17px}
+.movement-sheet .movement-head h2{font-size:25px;line-height:1.15}
+.movement-sheet .movement-head .eyebrow{font-size:9px;letter-spacing:.17em}
+.movement-form-body{padding:17px 21px 12px;overscroll-behavior:contain}
+.movement-form-body .sheet-section{margin-bottom:15px}
+.section-label{font-size:10px;color:#8792a3;letter-spacing:.13em;font-weight:850;margin-bottom:10px}
+.kind-pills{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}
+.kind-pill{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-width:0;padding:10px 2px 9px;border-radius:13px;border:1px solid #e9edf2;background:#f7f9fb;color:#738096;font-size:19px;font-weight:650}
+.kind-pill span{font-size:9px;font-weight:750;white-space:nowrap}
+.kind-pill.active{background:#e8f4ee;border:1px solid #b4dccb;color:#147d59;box-shadow:inset 0 0 0 1px #d0ebde}
+.native-kind-fallback{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+.amount-panel{background:#f4f7f9;border:1px solid #e5ebf0;border-radius:19px;padding:15px 17px;margin-bottom:19px}
+.amount-panel .amount-field{margin:0;gap:8px}
+.amount-field>span{font-size:10px;letter-spacing:.13em;font-weight:850;color:#8995a5}
+.amount-input-wrap{display:flex;align-items:center;gap:6px}
+.amount-input-wrap .money-prefix{font-size:28px;color:#24334b;font-weight:750}
+.amount-input-wrap #entryAmount{height:48px;border:0;padding:0;background:transparent;box-shadow:none;outline:none!important;color:#17253b;font-size:36px;font-weight:850;letter-spacing:-.055em;font-variant-numeric:tabular-nums;min-width:0;width:100%}
+.amount-input-wrap #entryAmount::placeholder{color:#aab4c1}
+.movement-form-body .sheet-details{margin-bottom:0}
+.movement-form-body .sheet-details .field{margin-bottom:13px;font-size:11px;font-weight:750}
+.movement-form-body .sheet-details .field input,.movement-form-body .sheet-details .field select{background:#fff;border:1px solid #e2e8ee;height:45px;border-radius:12px;font-size:14px}
+.movement-form-body .validation{margin-top:2px}
+.movement-actions{padding:12px 20px calc(16px + env(safe-area-inset-bottom));background:#fff}
+.movement-actions button{border-radius:13px;min-height:47px}
+.movement-actions .cancel-btn{flex:.75;background:#f2f4f7}
+.movement-actions .save-btn{flex:1.55;background:#202d45}
+.movement-actions .save-btn span{margin-right:5px}
+@media(max-width:600px){
+ .movement-sheet{position:fixed;inset:auto 0 0 0;margin:0;width:100%;max-width:100%;max-height:94dvh;border-radius:28px 28px 0 0}
+ .movement-sheet form{max-height:94dvh}
+}
+@media(max-width:390px){
+ #dashboardView>.compact-metrics>.metric{padding:11px 12px 12px}
+ .priority-row{grid-template-columns:34px minmax(0,1fr) auto;gap:8px;padding:6px 8px}
+ .priority-day{width:33px;height:33px}
+ .priority-name,.priority-amount{font-size:12px}
+ .kind-pill span{font-size:8px}
+ .movement-form-body{padding-left:16px;padding-right:16px}
+}
+@media(prefers-reduced-motion:reduce){.priority-row,.kind-pill{transition:none}}

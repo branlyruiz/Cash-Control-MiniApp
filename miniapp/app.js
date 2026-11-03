@@ -103,7 +103,13 @@ function syncVariableCategoryPicker(){
  $("categoryField").classList.toggle("hidden",Boolean(known));
 }
 function populateDebtOptions(exclude){const date=$("entryDate").value||nowBogota(),list=debtsAvailable(date,exclude);$("entryDebt").innerHTML='<option value="">Selecciona una deuda</option>'+list.map(({entry:d,remaining})=>'<option value="'+safe(d.id)+'">'+safe(d.category)+' · '+money(remaining)+'</option>').join("");if(selectedDebt&&list.some(x=>x.entry.id===selectedDebt))$("entryDebt").value=selectedDebt}
-function adjustForm(){const kind=$("entryKind").value;$("expenseClassField").classList.toggle("hidden",kind!=="expense");$("targetField").classList.toggle("hidden",kind!=="transfer");$("categoryField").classList.toggle("hidden",!["income","expense","debt"].includes(kind));$("directionField").classList.toggle("hidden",kind!=="debt");$("debtField").classList.toggle("hidden",kind!=="payment");$("accountField").classList.toggle("hidden",kind==="debt");if(kind==="payment")populateDebtOptions(editing?.kind==="payment"?editing.id:null);addOptions();$("dialogTitle").textContent=editing?"Editar registro":kind==="debt"?"Nueva deuda":kind==="payment"?"Nuevo abono":"Nuevo movimiento";$("formError").textContent=""}
+function adjustForm(){const kind=$("entryKind").value;
+ document.querySelectorAll("[data-entry-kind]").forEach(button=>{
+  const active=button.dataset.entryKind===kind;
+  button.classList.toggle("active",active);
+  button.setAttribute("aria-pressed",String(active));
+ });
+ $("formEyebrow").textContent=editing?"CASH CONTROL · EDITAR REGISTRO":"CASH CONTROL · NUEVO REGISTRO";$("expenseClassField").classList.toggle("hidden",kind!=="expense");$("targetField").classList.toggle("hidden",kind!=="transfer");$("categoryField").classList.toggle("hidden",!["income","expense","debt"].includes(kind));$("directionField").classList.toggle("hidden",kind!=="debt");$("debtField").classList.toggle("hidden",kind!=="payment");$("accountField").classList.toggle("hidden",kind==="debt");if(kind==="payment")populateDebtOptions(editing?.kind==="payment"?editing.id:null);addOptions();$("dialogTitle").textContent=editing?"Editar registro":kind==="debt"?"Nueva deuda":kind==="payment"?"Nuevo abono":"Nuevo movimiento";$("formError").textContent=""}
 function openForm(kind="income",record=null,debtId=null){editing=record;selectedDebt=debtId||record?.debtId||null;$("entryForm").reset();$("entryKind").value=record?.kind||kind;$("entryAmount").value=record?.amount||"";$("entryDate").value=record?.date||(nowBogota() < START ? START : nowBogota());$("entryAccount").value=record?.account||"digital";$("entryCategory").value=record?.category||"";$("expenseClass").value=record?.expenseClass||"variable";$("entryDirection").value=record?.direction||"receivable";$("entryDescription").value=record?.description||"";if(record?.target)$("entryTarget").value=record.target;addOptions();adjustForm();if(selectedDebt)$("entryDebt").value=selectedDebt;$("entryDialog").showModal()}
 function pendingDebtPayments(id,exclude=null){return entries.filter(x=>x.kind==="payment"&&x.debtId===id&&x.id!==exclude).reduce((s,x)=>s+x.amount,0)}
 function validEntry(x,original){if(!["income","expense","transfer","debt","payment"].includes(x.kind))return "Tipo de registro no válido.";if(!/^\d{4}-\d{2}-\d{2}$/.test(x.date)||x.date<START||!Number.isFinite(Date.parse(x.date+"T12:00:00Z")))return "La fecha debe ser desde el 1 de noviembre de 2026.";if(!Number.isSafeInteger(x.amount)||x.amount<=0)return "Introduce un importe entero mayor que cero.";if(!["digital","cash"].includes(x.account))return "Selecciona una cuenta válida.";if(["income","expense","debt"].includes(x.kind)&&!x.category)return "Indica la categoría o concepto.";if(x.kind==="expense"&&!["fixed","variable"].includes(x.expenseClass))return "Selecciona gasto fijo o variable.";if(x.kind==="transfer"&&(!["digital","cash"].includes(x.target)||x.account===x.target))return "La cuenta de destino debe ser diferente.";if(original?.kind==="debt"&&x.kind!=="debt"&&entries.some(p=>p.kind==="payment"&&p.debtId===original.id))return "No cambies el tipo de una deuda con abonos; elimina primero los abonos.";if(x.kind==="debt"){if(!["receivable","payable"].includes(x.direction))return "Selecciona el tipo de deuda.";if(original&&original.kind==="debt"){if(x.amount<pendingDebtPayments(x.id))return "La deuda no puede ser menor que los abonos registrados.";if(x.date>entries.filter(q=>q.kind==="payment"&&q.debtId===x.id).map(q=>q.date).sort()[0]&&entries.some(q=>q.kind==="payment"&&q.debtId===x.id))return "La fecha inicial no puede ser posterior a sus abonos."}}
@@ -170,8 +176,7 @@ function enhancedRender(s){
  $("fixedPaid").textContent=money(fixedPaid);
  $("fixedAlerts").classList.toggle("hidden",!upcoming.length);
  $("alertItems").innerHTML=upcoming.map(p=>{
-   const dueLabel=p.status==="overdue"?"Vencido":p.days===0?"Vence hoy":p.days===1?"Vence mañana":p.days>1?"Faltan "+p.days+" días":"Vence "+niceDate(p.due);
-   return '<button type="button" class="alert-row" data-due="'+safe(p.id)+'" aria-label="Registrar pago de '+safe(p.category)+', '+money(p.amount)+'"><span class="alert-date">'+p.due.slice(-2)+'</span><span><strong>'+safe(p.category)+'</strong><small>'+safe(dueLabel)+' · '+niceDate(p.due)+'</small></span><b>'+money(p.amount)+'</b></button>';
+  return '<button type="button" class="priority-row" data-due="'+safe(p.id)+'" aria-label="Pagar '+safe(p.category)+', día '+p.due.slice(-2)+', '+money(p.amount)+'"><span class="priority-day">'+Number(p.due.slice(-2))+'</span><span class="priority-name">'+safe(p.category)+'</span><strong class="priority-amount">'+money(p.amount)+'</strong></button>';
  }).join("");
 
  const allOutflows=s.monthly.reduce((sum,x)=>sum+(x.kind==="expense"?x.amount:x.kind==="payment"&&amountClass(x)==="negative"?x.amount:0),0);
@@ -312,6 +317,11 @@ async function undoLatest(){
  await transaction("readwrite",store=>store.delete(latest.id));await refresh();showToast("Último registro deshecho.");
 }
 function enhancedBind(){
+ document.querySelectorAll("[data-entry-kind]").forEach(button=>button.addEventListener("click",()=>{
+  $("entryKind").value=button.dataset.entryKind;
+  $("entryCategory").value="";
+  adjustForm();
+ }));
  $("undoLatest").addEventListener("click",undoLatest);
  $("variableCategoryBars").addEventListener("click",e=>{const b=e.target.closest("[data-variable-category]");if(!b)return;categoryKind="variable";navigate("categories");render();openConcept(b.dataset.variableCategory)});
  $("reminderDebtRows").addEventListener("click",e=>{const b=e.target.closest("[data-reminder-debt]");if(!b)return;categoryKind="payable";navigate("categories");render();const d=entries.find(x=>x.id===b.dataset.reminderDebt);if(d)openConcept(d.category)});
