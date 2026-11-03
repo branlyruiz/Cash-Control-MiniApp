@@ -176,3 +176,66 @@
  .movement-form-body{padding-left:16px;padding-right:16px}
 }
 @media(prefers-reduced-motion:reduce){.priority-row,.kind-pill{transition:none}}
+
+/* V12 — auditoría de ritmo, alineación y densidad para iPhone */
+:root{--ui-space-xs:6px;--ui-space-sm:10px;--ui-space-md:14px;--ui-space-lg:18px;--ui-space-xl:24px;--ui-radius-card:20px}
+#dashboardView>.compact-metrics{gap:10px;margin-top:10px}
+#dashboardView>.compact-metrics>.metric-button{
+ display:grid;grid-template-columns:36px minmax(0,1fr);grid-template-rows:auto auto;
+ align-items:center;column-gap:11px;row-gap:4px;
+ min-height:77px;padding:11px 12px;border-radius:18px;text-align:left;
+}
+#dashboardView>.compact-metrics>.metric-button .metric-icon{
+ grid-column:1;grid-row:1 / span 2;align-self:center;
+ width:36px;height:36px;margin:0;border-radius:12px;font-size:18px;
+}
+#dashboardView>.compact-metrics>.metric-button>span{
+ grid-column:2;grid-row:1;min-width:0;margin:0;
+ font-size:11px;line-height:1.28;letter-spacing:-.01em;color:#8490a0;
+}
+#dashboardView>.compact-metrics>.metric-button>strong{
+ grid-column:2;grid-row:2;min-width:0;
+ font-size:clamp(17px,4.2vw,22px);line-height:1.13;letter-spacing:-.045em;
+ font-variant-numeric:tabular-nums;
+}
+#dashboardView>.compact-priority{padding:13px 13px 11px;border-radius:20px}
+#dashboardView>.compact-priority .alert-heading{margin-bottom:9px}
+.priority-row{min-height:46px;padding:6px 9px;border-radius:12px}
+#dashboardView>.home-data-card{margin-top:12px;padding:16px;border-radius:21px}
+#dashboardView>.home-data-card .home-card-head{margin-bottom:13px}
+#dashboardView>.home-data-card .home-card-head h3{font-size:16px}
+#dashboardView>.section-title{margin-top:22px;margin-bottom:11px}
+#dashboardView>.panel{border-radius:20px}
+#dashboardView .transaction{padding-top:13px;padding-bottom:13px}
+#dashboardView .category-line{padding:11px 14px}
+.view{padding-left:18px;padding-right:18px}
+.top{padding-left:20px;padding-right:20px;padding-bottom:16px}
+.period-row{margin-bottom:15px}
+.period-row h2{font-size:clamp(25px,5.5vw,30px)}
+.balance-card{border-radius:24px;padding:20px 21px}
+.balance-value{margin:17px 0 19px}
+.account-grid{padding-top:15px}
+.section-title{margin-top:23px}
+.page-heading{margin-bottom:20px}
+.page-heading p:last-child{margin-top:6px}
+.panel{border-radius:21px}
+.dock-pill{box-shadow:0 8px 26px rgba(19,32,57,.09)}
+.dock-fab{box-shadow:0 10px 22px rgba(77,57,255,.24)}
+.movement-sheet .movement-head{padding-top:14px;padding-bottom:14px}
+.movement-form-body{padding-top:14px}
+.movement-form-body .sheet-section{margin-bottom:12px}
+.movement-form-body .sheet-details .field{margin-bottom:11px}
+.movement-actions{box-shadow:0 -5px 18px rgba(30,45,70,.035)}
+@media(max-width:390px){
+ .view{padding-left:14px;padding-right:14px}
+ .top{padding-left:16px;padding-right:16px}
+ #dashboardView>.compact-metrics>.metric-button{grid-template-columns:33px minmax(0,1fr);column-gap:9px;padding:10px;min-height:72px}
+ #dashboardView>.compact-metrics>.metric-button .metric-icon{width:33px;height:33px;font-size:16px}
+ #dashboardView>.compact-metrics>.metric-button>span{font-size:10.5px}
+ #dashboardView>.compact-metrics>.metric-button>strong{font-size:clamp(16px,4.6vw,19px)}
+ .balance-card{padding:18px}
+}
+@media(min-width:600px){
+ #dashboardView>.compact-metrics>.metric-button{min-height:84px;grid-template-columns:42px minmax(0,1fr);column-gap:14px;padding:14px 17px}
+ #dashboardView>.compact-metrics>.metric-button .metric-icon{width:42px;height:42px;font-size:19px}
+}
