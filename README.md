@@ -19,6 +19,15 @@ En iPhone: abrir el enlace con Safari → Compartir → Añadir a pantalla de in
 - No hay registros precargados, importación histórica automática ni conexión con la antigua base SQLite.
 - Las categorías se crean al añadir movimientos.
 
+## Funciones ampliadas (V5)
+
+- **Cinco secciones de categorías:** ingresos, gastos variables, gastos fijos, deudas a favor y deudas en contra.
+- **Gastos fijos recurrentes:** concepto, importe mensual previsto, día de pago (1–31) y mes desde el cual se aplica; las fechas se ajustan al último día de meses cortos.
+- **Alertas de vencimiento:** se muestran pagos sin abono, vencidos o con vencimiento en 0–2 días en el mes vigente; botón de pago rápido con selección de cuenta.
+- **Resumen financiero ampliado:** gastos fijos previstos y pagados, disponible arrastrado del mes anterior, flujo del dinero y patrimonio neto aproximado.
+- **Edición por concepto:** renombrar conceptos, inspeccionar y editar registros y eliminar registros del mes; eliminación separada de planes fijos.
+- Los movimientos existentes siguen en IndexedDB local, sin importar el historial del proyecto original.
+
 ## Funciones locales
 
 - Dashboard por mes, disponible digital y efectivo, ingresos, gastos, distribución por categorías.
