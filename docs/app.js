@@ -89,12 +89,14 @@ function categoryItems(kind){
  const result=new Map(),periodEntries=entries.filter(x=>x.date.slice(0,7)===month);
  function add(label,amount=0){const key=label||"Sin concepto";result.set(key,(result.get(key)||0)+amount)}
  if(kind==="income"){
+  for(const x of entries.filter(x=>x.kind==="income"))add(x.category,0);
   for(const x of periodEntries.filter(x=>x.kind==="income"))add(x.category,x.amount);
   for(const x of periodEntries.filter(x=>x.kind==="payment"&&entries.find(d=>d.id===x.debtId)?.direction==="receivable"))add(entries.find(d=>d.id===x.debtId)?.category,x.amount);
  }else if(kind==="fixed"){
   for(const p of fixedPlans(month))add(p.category,0);
   for(const x of periodEntries.filter(x=>x.kind==="expense"&&x.expenseClass==="fixed"))add(x.category,x.amount);
  }else if(kind==="variable"){
+  for(const x of entries.filter(x=>x.kind==="expense"&&x.expenseClass!=="fixed"))add(x.category,0);
   for(const x of periodEntries.filter(x=>x.kind==="expense"&&x.expenseClass!=="fixed"))add(x.category,x.amount);
  }else{
   for(const d of entries.filter(x=>x.kind==="debt"&&x.direction===kind&&x.date<=month+"-31"))add(d.category,debtBalance(d,month+"-31"));
