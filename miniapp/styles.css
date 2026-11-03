@@ -43,3 +43,5 @@
 #conceptDetails .concept-item{margin-bottom:2px}
 #conceptDialog .dialog-actions button{font-size:12px}
 @media(max-width:390px){.bottom-nav{gap:0;padding-left:3px;padding-right:3px}.nav-item{font-size:8px}.nav-item span{font-size:19px}.alert-row>b{font-size:11px}}
+
+.section-actions{display:flex;align-items:center;gap:13px;flex-wrap:wrap}.section-actions .text-button{font-size:12px}
