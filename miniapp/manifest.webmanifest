@@ -1,0 +1,26 @@
+{
+  "id": "./",
+  "name": "Cash Control · BRANLY RUIZ",
+  "short_name": "Cash Control",
+  "description": "Ingresos, gastos y deudas en este dispositivo",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#050505",
+  "theme_color": "#050505",
+  "lang": "es-CO",
+  "icons": [
+    {
+      "src": "./icon.svg?v=10",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icon-180.png?v=10",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

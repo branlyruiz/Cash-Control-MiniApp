@@ -9,15 +9,15 @@
 <meta name="apple-mobile-web-app-title" content="Cash Control"/>
 <meta name="description" content="Cash Control MiniApp de BRANLY RUIZ: tus finanzas guardadas en este dispositivo."/>
 <link rel="manifest" href="./manifest.webmanifest"/>
-<link rel="icon" href="./icon.svg" type="image/svg+xml"/>
-<link rel="apple-touch-icon" href="./icon-180.png"/>
-<link rel="stylesheet" href="./styles.css?v=9"/>
+<link rel="icon" href="./icon.svg?v=10" type="image/svg+xml"/>
+<link rel="apple-touch-icon" href="./icon-180.png?v=10"/>
+<link rel="stylesheet" href="./styles.css?v=10"/>
 <title>Cash Control · BRANLY RUIZ</title>
-<script defer src="./app.js?v=9"></script>
+<script defer src="./app.js?v=10"></script>
 </head>
 <body>
 <div class="app">
-<header class="top"><div class="brand"><div class="brand-mark">BR</div><div><p class="brand-kicker">BRANLY RUIZ</p><h1>Cash Control</h1></div></div><button class="icon-button" id="settingsButton" type="button" aria-label="Configuración">⚙</button></header>
+<header class="top"><div class="brand"><div class="brand-mark brand-logo" aria-label="Cash Control"></div><div><p class="brand-kicker">BRANLY RUIZ</p><h1>Cash Control</h1></div></div><button class="icon-button" id="settingsButton" type="button" aria-label="Configuración">⚙</button></header>
 <main>
 <section id="dashboardView" class="view active">
  <div class="period-row"><div><p class="eyebrow">RESUMEN FINANCIERO</p><h2 id="periodLabel">Noviembre 2026</h2></div><div class="period-controls"><button id="prevMonth" aria-label="Mes anterior" class="round-btn">‹</button><button id="nextMonth" aria-label="Mes siguiente" class="round-btn">›</button></div></div>
@@ -25,7 +25,21 @@
  <div class="metric-grid"><button type="button" class="metric metric-button" data-home-category="income"><div class="metric-icon incoming">↙</div><span>Entradas del mes</span><strong id="incomeTotal">$ 0</strong></button><button type="button" class="metric metric-button" data-home-category="variable"><div class="metric-icon outgoing">↗</div><span>Gastos variables</span><strong id="expenseTotal">$ 0</strong></button></div>
  <section class="fixed-alerts hidden" id="fixedAlerts" aria-label="Tres pagos fijos más urgentes"><div class="alert-heading"><div><strong>Pagos fijos prioritarios</strong><small>Los 3 vencimientos pendientes más cercanos</small></div><button type="button" class="text-button" id="openAllFixed">Ver todos</button></div><div id="alertItems"></div></section>
  <div class="metric-grid fixed-metrics"><button type="button" class="metric metric-button" data-home-category="fixed"><div class="metric-icon outgoing">◷</div><span>Gastos fijos pagados</span><strong id="fixedPaid">$ 0</strong></button><button type="button" class="metric metric-button" data-home-category="payable"><div class="metric-icon outgoing">▤</div><span>Deudas en contra</span><strong id="payableHome">$ 0</strong></button></div>
- <div class="section-title"><h3>Distribución de gastos</h3><span id="expenseCount">0 movimientos</span></div><section class="panel" id="categorySummary"><div class="empty-small">Tus categorías aparecerán aquí cuando registres gastos.</div></section>
+ <section class="home-data-card" id="cashflowCard" aria-label="Gráfico circular ingresos y egresos">
+ <div class="home-card-head"><div><span class="eyebrow">FLUJO MENSUAL</span><h3>Ingresos vs. egresos</h3></div><button type="button" class="text-button" data-home-target="balance">Ver balance</button></div>
+ <div class="cashflow-display"><div id="cashflowDonut" class="cashflow-donut" role="img" aria-label="Gráfico circular de ingresos y egresos"><div class="cashflow-center"><small>Movimientos</small><strong id="cashflowTotal">$ 0</strong></div></div>
+ <div class="cashflow-legend"><button type="button" data-home-category="income"><span class="legend-dot legend-green"></span><span>Ingresos</span><strong id="chartIncome">$ 0</strong></button><button type="button" data-home-target="balance"><span class="legend-dot legend-coral"></span><span>Egresos</span><strong id="chartExpense">$ 0</strong></button></div></div>
+</section>
+<section class="home-data-card" id="variableBarsCard" aria-label="Gastos variables por categoría">
+ <div class="home-card-head"><div><span class="eyebrow">GASTOS POR CONCEPTO</span><h3>Gastos variables</h3></div><button type="button" class="text-button" data-home-category="variable">Ver todos</button></div>
+ <div class="home-bars" id="variableCategoryBars"></div>
+</section>
+<section class="home-data-card" id="debtReminderCard" aria-label="Recordatorio de deudas por pagar">
+ <div class="home-card-head"><div><span class="eyebrow">RECORDATORIO</span><h3>Deudas en contra</h3></div><button type="button" class="text-button" data-home-category="payable">Ver deudas</button></div>
+ <div class="home-debt-total"><small>Total pendiente</small><strong id="reminderDebtTotal">$ 0</strong></div>
+ <div class="home-debt-rows" id="reminderDebtRows"></div>
+</section>
+<div class="section-title"><h3>Distribución de gastos</h3><span id="expenseCount">0 movimientos</span></div><section class="panel" id="categorySummary"><div class="empty-small">Tus categorías aparecerán aquí cuando registres gastos.</div></section>
  <div class="section-title"><h3>Últimos movimientos</h3><div class="section-actions"><button class="text-button" id="undoLatest">↶ Deshacer último</button><button class="text-button" data-nav="movements">Ver todos</button></div></div><section class="panel activity" id="recentTransactions"></section>
 </section>
 <section id="movementsView" class="view">
@@ -46,7 +60,7 @@
   </div>
   <div class="metric-grid"><article class="metric"><span id="categoryMetricLabel">Total del mes</span><strong id="categoryMetricTotal">$ 0</strong></article><article class="metric"><span>Conceptos</span><strong id="categoryMetricCount">0</strong></article></div>
   <section class="panel category-summary" id="categoryChart"></section>
-  <div class="section-title"><h3>Valores por concepto</h3><button class="text-button" id="categoryAddBtn">+ Agregar</button></div>
+  <div class="section-title"><h3>Valores por concepto</h3><div class="section-actions"><button type="button" class="text-button hidden" id="newVariableCategory">+ Categoría</button><button type="button" class="text-button" id="categoryAddBtn">+ Movimiento</button></div></div>
   <section class="panel activity" id="categoryRows"></section>
 </section>
 <section id="balanceView" class="view">
@@ -93,7 +107,7 @@
 <div class="form-grid"><label class="field">Fecha<input name="date" id="entryDate" type="date" min="2026-11-01" required/></label><label class="field" id="accountField">Cuenta<select name="account" id="entryAccount"><option value="digital">Digital</option><option value="cash">Efectivo</option></select></label></div>
 <label class="field hidden" id="expenseClassField">Tipo de gasto<select id="expenseClass"><option value="variable">Gasto variable</option><option value="fixed">Gasto fijo</option></select></label>
 <label class="field hidden" id="targetField">Transferir a<select name="target" id="entryTarget"><option value="cash">Efectivo</option><option value="digital">Digital</option></select></label>
-<label class="field" id="categoryField">Categoría<input name="category" id="entryCategory" list="categoriesList" maxlength="60" placeholder="Ej. Alimentación"/><datalist id="categoriesList"></datalist></label>
+<label class="field hidden" id="variablePickerField">Gasto variable frecuente<select id="variableCategoryPicker"></select></label><label class="field" id="categoryField">Categoría<input name="category" id="entryCategory" list="categoriesList" maxlength="60" placeholder="Ej. Alimentación"/><datalist id="categoriesList"></datalist></label>
 <label class="field hidden" id="directionField">Tipo de deuda<select name="direction" id="entryDirection"><option value="receivable">Me deben</option><option value="payable">Yo debo</option></select></label>
 <label class="field hidden" id="debtField">Deuda a abonar<select name="debtId" id="entryDebt"><option value="">Selecciona una deuda</option></select></label>
 <label class="field" id="descriptionField">Descripción (opcional)<input name="description" id="entryDescription" maxlength="180" placeholder="Añade un detalle"/></label>
@@ -110,6 +124,7 @@
 <p class="small-note">Al confirmar, se registrará el gasto, se marcará como pagado y se descontará inmediatamente de la cuenta elegida.</p><p id="quickPayError" class="validation" role="alert"></p></div>
 <footer class="dialog-actions"><button type="button" id="cancelQuickPay" class="cancel-btn">Cancelar</button><button type="submit" id="confirmQuickPay" class="save-btn">Confirmar pago</button></footer>
 </form></dialog>
+<dialog id="variableCategoryDialog" class="entry-dialog"><form id="variableCategoryForm" novalidate><header class="dialog-head"><div><p class="eyebrow">GASTOS VARIABLES</p><h2 id="variableCategoryTitle">Nueva categoría</h2></div><button type="button" class="close" id="closeVariableCategory" aria-label="Cerrar">×</button></header><div class="form-content"><label class="field">Nombre del concepto<input id="variableCategoryName" maxlength="60" required placeholder="Ej. Comida chatarra"/></label><p class="small-note">El nombre aparecerá en los gastos repetitivos y en los resúmenes mensuales.</p><p class="validation" id="variableCategoryError" role="alert"></p></div><footer class="dialog-actions"><button type="button" id="cancelVariableCategory" class="cancel-btn">Cancelar</button><button type="submit" class="save-btn">Guardar categoría</button></footer></form></dialog>
 <dialog id="fixedDialog" class="entry-dialog"><form id="fixedForm" method="dialog" novalidate>
 <header class="dialog-head"><div><p class="eyebrow">PAGO RECURRENTE</p><h2 id="fixedDialogTitle">Nuevo gasto fijo</h2></div><button type="button" class="close" id="closeFixedDialog" aria-label="Cerrar">×</button></header>
 <div class="form-content">
@@ -120,7 +135,7 @@
 <p class="small-note">Si el mes tiene menos días, el vencimiento será su último día. Un abono positivo al concepto lo marca como pagado ese mes.</p>
 <p class="validation" id="fixedFormError" role="alert"></p>
 </div><footer class="dialog-actions"><button type="button" id="cancelFixed" class="cancel-btn">Cancelar</button><button type="submit" class="save-btn">Guardar</button></footer></form></dialog>
-<dialog id="conceptDialog" class="entry-dialog"><div class="dialog-head"><div><p class="eyebrow">DETALLE POR CONCEPTO</p><h2 id="conceptDialogTitle">Concepto</h2></div><button class="close" id="closeConceptDialog" aria-label="Cerrar">×</button></div><div class="form-content" id="conceptDetails"></div><footer class="dialog-actions"><button class="cancel-btn" id="renameConcept">Renombrar</button><button class="cancel-btn" id="deleteConcept">Eliminar valores del mes</button></footer></dialog>
+<dialog id="conceptDialog" class="entry-dialog"><div class="dialog-head"><div><p class="eyebrow">DETALLE POR CONCEPTO</p><h2 id="conceptDialogTitle">Concepto</h2></div><button class="close" id="closeConceptDialog" aria-label="Cerrar">×</button></div><div class="form-content" id="conceptDetails"></div><footer class="dialog-actions"><button class="cancel-btn" id="renameConcept">Renombrar</button><button class="cancel-btn" id="deleteConcept">Eliminar valores del mes</button><button class="cancel-btn hidden" id="deleteVariableCategory">Quitar categoría</button></footer></dialog>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 </body>
 </html>
