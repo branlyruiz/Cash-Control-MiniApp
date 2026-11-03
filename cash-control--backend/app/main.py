@@ -232,6 +232,8 @@ def create_transaction(body: TransactionInput, user_id: int = Depends(current_us
 
 
 def _require_unimported_date(db: sqlite3.Connection, user_id: int, occurred_on: date):
+    if occurred_on < date(2026, 11, 1):
+        raise HTTPException(status_code=422, detail="Cash Control MiniApp comienza el 1 de noviembre de 2026")
     latest = db.execute(
         "SELECT period FROM historical_months WHERE user_id = ? ORDER BY period DESC LIMIT 1", (user_id,)
     ).fetchone()
