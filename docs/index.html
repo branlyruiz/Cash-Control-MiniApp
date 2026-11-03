@@ -46,7 +46,7 @@
   </div>
   <div class="metric-grid"><article class="metric"><span id="categoryMetricLabel">Total del mes</span><strong id="categoryMetricTotal">$ 0</strong></article><article class="metric"><span>Conceptos</span><strong id="categoryMetricCount">0</strong></article></div>
   <section class="panel category-summary" id="categoryChart"></section>
-  <div class="section-title"><h3>Valores por concepto</h3><button class="text-button" id="categoryAddBtn">+ Agregar</button></div>
+  <div class="section-title"><h3>Valores por concepto</h3><div class="section-actions"><button type="button" class="text-button hidden" id="newVariableCategory">+ Categoría</button><button type="button" class="text-button" id="categoryAddBtn">+ Movimiento</button></div></div>
   <section class="panel activity" id="categoryRows"></section>
 </section>
 <section id="balanceView" class="view">
@@ -93,7 +93,7 @@
 <div class="form-grid"><label class="field">Fecha<input name="date" id="entryDate" type="date" min="2026-11-01" required/></label><label class="field" id="accountField">Cuenta<select name="account" id="entryAccount"><option value="digital">Digital</option><option value="cash">Efectivo</option></select></label></div>
 <label class="field hidden" id="expenseClassField">Tipo de gasto<select id="expenseClass"><option value="variable">Gasto variable</option><option value="fixed">Gasto fijo</option></select></label>
 <label class="field hidden" id="targetField">Transferir a<select name="target" id="entryTarget"><option value="cash">Efectivo</option><option value="digital">Digital</option></select></label>
-<label class="field" id="categoryField">Categoría<input name="category" id="entryCategory" list="categoriesList" maxlength="60" placeholder="Ej. Alimentación"/><datalist id="categoriesList"></datalist></label>
+<label class="field hidden" id="variablePickerField">Gasto variable frecuente<select id="variableCategoryPicker"></select></label><label class="field" id="categoryField">Categoría<input name="category" id="entryCategory" list="categoriesList" maxlength="60" placeholder="Ej. Alimentación"/><datalist id="categoriesList"></datalist></label>
 <label class="field hidden" id="directionField">Tipo de deuda<select name="direction" id="entryDirection"><option value="receivable">Me deben</option><option value="payable">Yo debo</option></select></label>
 <label class="field hidden" id="debtField">Deuda a abonar<select name="debtId" id="entryDebt"><option value="">Selecciona una deuda</option></select></label>
 <label class="field" id="descriptionField">Descripción (opcional)<input name="description" id="entryDescription" maxlength="180" placeholder="Añade un detalle"/></label>
@@ -110,6 +110,7 @@
 <p class="small-note">Al confirmar, se registrará el gasto, se marcará como pagado y se descontará inmediatamente de la cuenta elegida.</p><p id="quickPayError" class="validation" role="alert"></p></div>
 <footer class="dialog-actions"><button type="button" id="cancelQuickPay" class="cancel-btn">Cancelar</button><button type="submit" id="confirmQuickPay" class="save-btn">Confirmar pago</button></footer>
 </form></dialog>
+<dialog id="variableCategoryDialog" class="entry-dialog"><form id="variableCategoryForm" novalidate><header class="dialog-head"><div><p class="eyebrow">GASTOS VARIABLES</p><h2 id="variableCategoryTitle">Nueva categoría</h2></div><button type="button" class="close" id="closeVariableCategory" aria-label="Cerrar">×</button></header><div class="form-content"><label class="field">Nombre del concepto<input id="variableCategoryName" maxlength="60" required placeholder="Ej. Comida chatarra"/></label><p class="small-note">El nombre aparecerá en los gastos repetitivos y en los resúmenes mensuales.</p><p class="validation" id="variableCategoryError" role="alert"></p></div><footer class="dialog-actions"><button type="button" id="cancelVariableCategory" class="cancel-btn">Cancelar</button><button type="submit" class="save-btn">Guardar categoría</button></footer></form></dialog>
 <dialog id="fixedDialog" class="entry-dialog"><form id="fixedForm" method="dialog" novalidate>
 <header class="dialog-head"><div><p class="eyebrow">PAGO RECURRENTE</p><h2 id="fixedDialogTitle">Nuevo gasto fijo</h2></div><button type="button" class="close" id="closeFixedDialog" aria-label="Cerrar">×</button></header>
 <div class="form-content">
@@ -120,7 +121,7 @@
 <p class="small-note">Si el mes tiene menos días, el vencimiento será su último día. Un abono positivo al concepto lo marca como pagado ese mes.</p>
 <p class="validation" id="fixedFormError" role="alert"></p>
 </div><footer class="dialog-actions"><button type="button" id="cancelFixed" class="cancel-btn">Cancelar</button><button type="submit" class="save-btn">Guardar</button></footer></form></dialog>
-<dialog id="conceptDialog" class="entry-dialog"><div class="dialog-head"><div><p class="eyebrow">DETALLE POR CONCEPTO</p><h2 id="conceptDialogTitle">Concepto</h2></div><button class="close" id="closeConceptDialog" aria-label="Cerrar">×</button></div><div class="form-content" id="conceptDetails"></div><footer class="dialog-actions"><button class="cancel-btn" id="renameConcept">Renombrar</button><button class="cancel-btn" id="deleteConcept">Eliminar valores del mes</button></footer></dialog>
+<dialog id="conceptDialog" class="entry-dialog"><div class="dialog-head"><div><p class="eyebrow">DETALLE POR CONCEPTO</p><h2 id="conceptDialogTitle">Concepto</h2></div><button class="close" id="closeConceptDialog" aria-label="Cerrar">×</button></div><div class="form-content" id="conceptDetails"></div><footer class="dialog-actions"><button class="cancel-btn" id="renameConcept">Renombrar</button><button class="cancel-btn" id="deleteConcept">Eliminar valores del mes</button><button class="cancel-btn hidden" id="deleteVariableCategory">Quitar categoría</button></footer></dialog>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 </body>
 </html>
