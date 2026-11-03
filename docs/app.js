@@ -141,16 +141,17 @@ async function saveFixed(e){
  const item={id:fixedEditing?.id||uid(),kind:"fixed_plan",created:fixedEditing?.created||new Date().toISOString(),date:from+"-01",account:"digital",category,description:"",amount,dueDay:day};
  await transaction("readwrite",store=>store.put(item));$("fixedDialog").close();await refresh();showToast("Gasto fijo guardado.");
 }
-async function payDue(id){
+function payDue(id){
  const plan=entries.find(x=>x.kind==="fixed_plan"&&x.id===id);if(!plan)return;
- if(!confirm("¿Registrar pago de "+plan.category+" por "+money(plan.amount)+"?"))return;
  if(plan.amount<=0){showToast("Configura un valor previsto mayor que cero.");return}
- const account=prompt("¿Desde qué cuenta pagaste? Escribe DIGITAL o EFECTIVO","DIGITAL");
- if(account===null)return;const selected=account.trim().toLowerCase(),acc=selected==="digital"?"digital":selected==="efectivo"?"cash":null;
- if(!acc){showToast("Cuenta no válida. No se registró el pago.");return}
- const today=nowBogota(),date=today.slice(0,7)===month?today:month+"-01";
- const item={id:uid(),kind:"expense",expenseClass:"fixed",category:plan.category,description:"Pago fijo",amount:plan.amount,date,account:acc,created:new Date().toISOString(),target:null,direction:null,debtId:null};
- await transaction("readwrite",store=>store.put(item));await refresh();showToast("Pago fijo registrado.");
+ openForm("expense");
+ $("entryKind").value="expense";
+ $("entryAmount").value=String(plan.amount);
+ $("entryCategory").value=plan.category;
+ $("expenseClass").value="fixed";
+ const today=nowBogota();
+ $("entryDate").value=today.slice(0,7)===month?today:month+"-01";
+ adjustForm();
 }
 function relatedTo(kind,label){
  return entries.filter(x=>{if(kind==="income")return x.kind==="income"&&x.category===label&&x.date.slice(0,7)===month;
