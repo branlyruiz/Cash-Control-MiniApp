@@ -67,7 +67,7 @@ def dashboard_data(db: sqlite3.Connection, user_id: int, requested_period: str |
     periods.update(row[0] for row in db.execute(
         "SELECT DISTINCT substr(occurred_on, 1, 7) FROM debt_payments WHERE user_id = ?", (user_id,)
     ))
-    periods.add(today_period or datetime.now(ZoneInfo("America/Bogota")).strftime("%Y-%m"))
+    periods.add(max("2026-11", today_period or datetime.now(ZoneInfo("America/Bogota")).strftime("%Y-%m")))
     period = requested_period or max(periods)
     if not re.fullmatch(r"\d{4}-(0[1-9]|1[0-2])", period):
         raise ValueError("Periodo inválido")
