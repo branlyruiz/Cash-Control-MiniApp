@@ -25,7 +25,21 @@
  <div class="metric-grid"><button type="button" class="metric metric-button" data-home-category="income"><div class="metric-icon incoming">↙</div><span>Entradas del mes</span><strong id="incomeTotal">$ 0</strong></button><button type="button" class="metric metric-button" data-home-category="variable"><div class="metric-icon outgoing">↗</div><span>Gastos variables</span><strong id="expenseTotal">$ 0</strong></button></div>
  <section class="fixed-alerts hidden" id="fixedAlerts" aria-label="Tres pagos fijos más urgentes"><div class="alert-heading"><div><strong>Pagos fijos prioritarios</strong><small>Los 3 vencimientos pendientes más cercanos</small></div><button type="button" class="text-button" id="openAllFixed">Ver todos</button></div><div id="alertItems"></div></section>
  <div class="metric-grid fixed-metrics"><button type="button" class="metric metric-button" data-home-category="fixed"><div class="metric-icon outgoing">◷</div><span>Gastos fijos pagados</span><strong id="fixedPaid">$ 0</strong></button><button type="button" class="metric metric-button" data-home-category="payable"><div class="metric-icon outgoing">▤</div><span>Deudas en contra</span><strong id="payableHome">$ 0</strong></button></div>
- <div class="section-title"><h3>Distribución de gastos</h3><span id="expenseCount">0 movimientos</span></div><section class="panel" id="categorySummary"><div class="empty-small">Tus categorías aparecerán aquí cuando registres gastos.</div></section>
+ <section class="home-data-card" id="cashflowCard" aria-label="Gráfico circular ingresos y egresos">
+ <div class="home-card-head"><div><span class="eyebrow">FLUJO MENSUAL</span><h3>Ingresos vs. egresos</h3></div><button type="button" class="text-button" data-home-target="balance">Ver balance</button></div>
+ <div class="cashflow-display"><div id="cashflowDonut" class="cashflow-donut" role="img" aria-label="Gráfico circular de ingresos y egresos"><div class="cashflow-center"><small>Movimientos</small><strong id="cashflowTotal">$ 0</strong></div></div>
+ <div class="cashflow-legend"><button type="button" data-home-category="income"><span class="legend-dot legend-green"></span><span>Ingresos</span><strong id="chartIncome">$ 0</strong></button><button type="button" data-home-target="balance"><span class="legend-dot legend-coral"></span><span>Egresos</span><strong id="chartExpense">$ 0</strong></button></div></div>
+</section>
+<section class="home-data-card" id="variableBarsCard" aria-label="Gastos variables por categoría">
+ <div class="home-card-head"><div><span class="eyebrow">GASTOS POR CONCEPTO</span><h3>Gastos variables</h3></div><button type="button" class="text-button" data-home-category="variable">Ver todos</button></div>
+ <div class="home-bars" id="variableCategoryBars"></div>
+</section>
+<section class="home-data-card" id="debtReminderCard" aria-label="Recordatorio de deudas por pagar">
+ <div class="home-card-head"><div><span class="eyebrow">RECORDATORIO</span><h3>Deudas en contra</h3></div><button type="button" class="text-button" data-home-category="payable">Ver deudas</button></div>
+ <div class="home-debt-total"><small>Total pendiente</small><strong id="reminderDebtTotal">$ 0</strong></div>
+ <div class="home-debt-rows" id="reminderDebtRows"></div>
+</section>
+<div class="section-title"><h3>Distribución de gastos</h3><span id="expenseCount">0 movimientos</span></div><section class="panel" id="categorySummary"><div class="empty-small">Tus categorías aparecerán aquí cuando registres gastos.</div></section>
  <div class="section-title"><h3>Últimos movimientos</h3><div class="section-actions"><button class="text-button" id="undoLatest">↶ Deshacer último</button><button class="text-button" data-nav="movements">Ver todos</button></div></div><section class="panel activity" id="recentTransactions"></section>
 </section>
 <section id="movementsView" class="view">
