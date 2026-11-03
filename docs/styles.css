@@ -45,3 +45,25 @@
 @media(max-width:390px){.bottom-nav{gap:0;padding-left:3px;padding-right:3px}.nav-item{font-size:8px}.nav-item span{font-size:19px}.alert-row>b{font-size:11px}}
 
 .section-actions{display:flex;align-items:center;gap:13px;flex-wrap:wrap}.section-actions .text-button{font-size:12px}
+
+/* Dock flotante v8 */
+.app{padding-bottom:calc(128px + env(safe-area-inset-bottom))}
+.bottom-nav,.fab{display:none!important}
+.bottom-dock{position:fixed;z-index:40;bottom:calc(15px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:min(calc(100% - 28px),690px);display:flex;align-items:center;gap:12px;filter:drop-shadow(0 12px 22px rgba(21,34,56,.10))}
+.dock-pill{min-width:0;flex:1;background:rgba(255,255,255,.91);border:1px solid rgba(230,233,240,.95);border-radius:999px;display:flex;align-items:center;gap:3px;padding:7px;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+.dock-item{height:51px;min-width:0;flex:1;border:0;border-radius:999px;color:#28344c;background:transparent;display:flex;align-items:center;justify-content:center;gap:7px;padding:0 9px;transition:background .2s ease,flex .2s ease}
+.dock-item.active{flex:1.6;background:#fff;box-shadow:0 4px 18px rgba(25,43,72,.08)}
+.dock-icon{display:grid;place-items:center;flex:none}.dock-icon svg{width:23px;height:23px}
+.dock-label{display:none;font-size:12px;font-weight:800;white-space:nowrap;letter-spacing:-.015em}.dock-item.active .dock-label{display:block}
+.dock-fab{width:65px;height:65px;flex:0 0 65px;background:linear-gradient(145deg,#6358fa,#4c3deb);border:0;border-radius:50%;font-size:39px;line-height:1;color:#fff;font-weight:300;display:grid;place-items:center;box-shadow:0 12px 26px rgba(78,63,224,.28)}
+.dock-fab:active{transform:scale(.96)}
+.sheet-backdrop{position:fixed;inset:0;background:rgba(20,30,45,.29);z-index:42;backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+.more-sheet{position:fixed;bottom:calc(92px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);z-index:43;width:min(calc(100% - 30px),500px);background:rgba(255,255,255,.97);border:1px solid #e9edf2;border-radius:29px;padding:15px;box-shadow:0 22px 60px rgba(22,33,52,.16);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+.sheet-handle{width:42px;height:5px;border-radius:99px;background:#d9dfe7;margin:0 auto 15px}
+.more-sheet h3{font-size:18px;margin:0 6px 15px;letter-spacing:-.03em}
+.sheet-item{display:flex;width:100%;align-items:center;text-align:left;gap:13px;padding:13px;border-radius:17px;border:1px solid #edf0f4;background:#fff;color:#26344a;margin-bottom:8px}
+.sheet-icon{width:42px;height:42px;display:grid;place-items:center;flex:none;background:#f3f5f9;border-radius:13px}.sheet-icon svg{height:21px;width:21px}
+.sheet-copy{display:flex;flex:1;flex-direction:column;gap:5px;min-width:0}.sheet-copy strong{font-size:14px}.sheet-copy small{font-size:11px;color:#8e99aa}
+.sheet-chevron{color:#9eabba;font-size:25px}
+.sheet-close{display:block;margin:12px auto 0;border:0;background:transparent;padding:8px 20px;color:#617086;font-size:13px;font-weight:750}
+@media(max-width:390px){.bottom-dock{width:calc(100% - 20px);gap:8px}.dock-pill{padding:5px}.dock-item{height:48px;padding:0 5px;gap:5px}.dock-icon svg{width:20px;height:20px}.dock-item.active{flex:1.45}.dock-label{font-size:11px}.dock-fab{width:60px;height:60px;flex-basis:60px;font-size:36px}.more-sheet{bottom:calc(84px + env(safe-area-inset-bottom))}}
