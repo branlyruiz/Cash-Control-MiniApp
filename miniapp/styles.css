@@ -8,3 +8,38 @@
 .entry-dialog{border:0;background:white;box-shadow:0 22px 90px #15213555;border-radius:28px;padding:0;width:min(94vw,480px);max-height:min(90dvh,760px);color:var(--ink)}.entry-dialog::backdrop{background:#111b2ba8;backdrop-filter:blur(3px)}.entry-dialog form{display:flex;flex-direction:column;max-height:min(90dvh,760px)}.dialog-head{display:flex;justify-content:space-between;align-items:center;padding:23px 24px 14px;border-bottom:1px solid var(--line)}.dialog-head h2{font-size:23px;letter-spacing:-.04em;margin:0}.close{border:0;background:#f2f4f7;width:34px;height:34px;border-radius:12px;font-size:23px;color:#778393}.form-content{padding:18px 24px;overflow:auto}.field{display:flex;flex-direction:column;gap:7px;font-size:12px;font-weight:750;color:#68758a;margin-bottom:15px}.field input,.field select{width:100%;background:#f8f9fb;border:1px solid #e4e9f0;border-radius:13px;height:46px;padding:0 13px;color:#202c42;font-size:15px;font-weight:600;min-width:0}.field input:focus,.field select:focus{border-color:#5ea989;outline:2px solid #bde9d7}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.hidden{display:none!important}.validation{font-size:12px;color:#bf5558;margin:0;min-height:13px}.dialog-actions{display:flex;gap:10px;padding:16px 24px calc(18px + env(safe-area-inset-bottom));border-top:1px solid var(--line)}.dialog-actions button{flex:1;border:0;border-radius:14px;padding:14px;font-size:14px;font-weight:800}.cancel-btn{background:#f2f4f6;color:#7b8697}.save-btn{background:#24334b;color:white}.toast{position:fixed;z-index:90;left:50%;bottom:calc(150px + env(safe-area-inset-bottom));transform:translateX(-50%);border-radius:13px;background:#22324a;color:#fff;padding:11px 16px;max-width:90%;font-size:12px;pointer-events:none;opacity:0;transition:opacity .2s}.toast.show{opacity:1}
 @media(max-width:390px){.view{padding-left:14px;padding-right:14px}.top{padding-left:16px;padding-right:16px}.balance-card{padding:19px}.balance-value{font-size:35px}.metric{padding:13px}.account-grid strong{font-size:15px}.transaction-icon{width:36px;height:36px}.fab{padding:13px 16px}.fab span{font-size:12px}}
 @media(min-width:760px){.bottom-nav{border-left:1px solid var(--line);border-right:1px solid var(--line)}.view{padding:16px 28px}.top{padding-left:28px;padding-right:28px}}
+
+/* Extensiones del Cash Control original: categorías, alertas, fijos y balance */
+.bottom-nav{grid-template-columns:repeat(6,minmax(0,1fr));gap:2px;padding-left:7px;padding-right:7px}
+.nav-item{font-size:9px;min-width:0}.nav-item span{font-size:20px}
+.fixed-metrics{margin-top:13px}
+.fixed-alerts{background:#fff5ed;border:1px solid #f0d4c1;border-radius:22px;margin:13px 0 14px;padding:15px;box-shadow:0 10px 26px rgba(162,94,48,.06)}
+.alert-heading{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;gap:12px;font-size:14px}
+.alert-heading span{font-size:11px;color:#9d6548}
+.alert-row{display:flex;width:100%;align-items:center;gap:12px;background:#fff;border:1px solid #f0dfd0;border-radius:16px;text-align:left;padding:12px 10px;margin-top:8px;color:#253044}
+.alert-date{width:36px;height:36px;border-radius:10px;background:#fce4d5;color:#bd6742;display:grid;place-items:center;flex:none;font-weight:800}
+.alert-row>span:nth-child(2){min-width:0;flex:1}
+.alert-row strong{display:block;font-size:13px;overflow-wrap:anywhere}
+.alert-row small{display:block;font-size:11px;color:#a77e69;margin-top:4px}
+.alert-row>b{font-size:12px;white-space:nowrap}
+.category-tabs{display:flex;gap:7px;overflow:auto;margin:-2px -2px 15px;padding:3px 2px 8px;scrollbar-width:thin}
+.category-tab{border:1px solid #e4e9ee;border-radius:12px;padding:12px 11px;background:white;white-space:nowrap;color:#8792a2;font-size:12px;font-weight:750}
+.category-tab.active{background:#24334b;color:#fff;border-color:#24334b}
+.category-summary{padding:12px 14px;margin-top:14px;min-height:70px}
+.concept-item{padding:15px 3px;border-bottom:1px solid #edf0f4;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.concept-item:last-child{border-bottom:0}
+.concept-name{display:flex;flex:1;flex-direction:column;gap:4px;text-align:left;background:transparent;border:0;color:#26334b;min-width:0;padding:0}
+.concept-name strong{font-size:14px;overflow-wrap:anywhere}
+.concept-name small,.concept-small{font-size:11px;color:#9aa3af;font-weight:500}
+.concept-small{color:#b57b5b}
+.concept-right{display:flex;flex-direction:column;align-items:flex-end;gap:7px;flex-shrink:0}
+.concept-right strong{font-size:14px}
+.summary-lines{padding:3px 17px}
+.balance-line{display:flex;align-items:center;justify-content:space-between;gap:15px;border-bottom:1px solid #ecf0f3;padding:14px 0}
+.balance-line:last-child{border-bottom:0}
+.balance-line strong{display:block;font-size:13px;font-weight:700;color:#3c4a5e}
+.balance-line small{display:block;font-size:11px;margin-top:5px;color:#9ca6b2}
+.balance-line b{font-size:14px;text-align:right;overflow-wrap:anywhere}
+#conceptDetails .concept-item{margin-bottom:2px}
+#conceptDialog .dialog-actions button{font-size:12px}
+@media(max-width:390px){.bottom-nav{gap:0;padding-left:3px;padding-right:3px}.nav-item{font-size:8px}.nav-item span{font-size:19px}.alert-row>b{font-size:11px}}
