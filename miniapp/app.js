@@ -32,7 +32,7 @@ return {until,balances,income,expenses,monthly,groups}}
 function entryHtml(x,buttons=true){const icon={income:"↙",expense:"↗",transfer:"⇄",debt:"▤",payment:"⇩"}[x.kind];const cls=x.kind==="income"||x.kind==="expense"||x.kind==="payment"?x.kind:(x.kind==="debt"?x.direction:"");
 return '<div class="transaction"><div class="transaction-icon '+cls+'">'+icon+'</div><div class="transaction-main"><div class="transaction-name">'+safe(recordTitle(x))+'</div><div class="transaction-date">'+niceDate(x.date)+' · '+safe(x.description||kinds[x.kind])+'</div></div><div class="transaction-side"><div class="transaction-amount '+amountClass(x)+'">'+amountPrefix(x)+money(x.amount)+'</div>'+(buttons?'<div class="transaction-actions"><button class="mini-btn" data-edit="'+safe(x.id)+'">Editar</button><button class="mini-btn" data-delete="'+safe(x.id)+'">Eliminar</button></div>':"")+'</div></div>'}
 function empty(message){return '<div class="empty-small">'+safe(message)+'</div>'}
-function render(){const s=summary();$("periodLabel").textContent=monthText(month);$("balanceMonth").textContent=monthText(month);$("totalBalance").textContent=money(s.balances.digital+s.balances.cash);$("digitalBalance").textContent=money(s.balances.digital);$("cashBalance").textContent=money(s.balances.cash);$("incomeTotal").textContent=money(s.income);$("expenseTotal").textContent=money(s.expenses);$("prevMonth").disabled=month<=FIRST_MONTH;
+function render(){const s=summary();$("periodLabel").textContent=monthText(month);$("balanceMonth").textContent=monthText(month);$("totalBalance").textContent=money(s.balances.digital+s.balances.cash);$("digitalBalance").textContent=money(s.balances.digital);$("cashBalance").textContent=money(s.balances.cash);$("incomeTotal").textContent=money(s.income);$("expenseTotal").textContent=money(s.monthly.filter(x=>x.kind==="expense"&&x.expenseClass!=="fixed").reduce((sum,x)=>sum+x.amount,0));$("prevMonth").disabled=month<=FIRST_MONTH;
 const groupEntries=Object.entries(s.groups).sort((a,b)=>b[1]-a[1]);$("expenseCount").textContent=groupEntries.length+" categorías";
 $("categorySummary").innerHTML=groupEntries.length?groupEntries.map(([name,value])=>'<div class="category-line"><div class="category-row"><span>'+safe(name)+'</span><strong>'+money(value)+'</strong></div><div class="bar-track"><div class="bar-fill" style="width:'+Math.min(100,100*value/Math.max(1,s.expenses))+'%"></div></div></div>').join(""):empty("Registra tu primer gasto para ver las categorías.");
 const activity=s.monthly.filter(isMoney);$("recentTransactions").innerHTML=activity.length?activity.slice(0,5).map(x=>entryHtml(x,false)).join(""):empty("Aún no tienes movimientos en "+monthText(month)+".");
@@ -40,6 +40,7 @@ const filter=$("filterKind").value;const selected=activity.filter(x=>filter==="a
 const historicalDebts=entries.filter(x=>x.kind==="debt"&&x.date<=s.until),active=historicalDebts.map(d=>({entry:d,remaining:debtBalance(d,s.until)}));
 $("receivableTotal").textContent=money(active.filter(x=>x.entry.direction==="receivable").reduce((sum,x)=>sum+x.remaining,0));
 $("payableTotal").textContent=money(active.filter(x=>x.entry.direction==="payable").reduce((sum,x)=>sum+x.remaining,0));
+ $("payableHome").textContent=$("payableTotal").textContent;
 $("debtList").innerHTML=active.length?active.map(({entry:d,remaining})=>'<div class="debt-row"><div class="debt-head"><strong>'+safe(d.category)+'</strong><strong>'+money(remaining)+'</strong></div><span class="debt-label">'+(d.direction==="receivable"?"Por cobrar":"Por pagar")+' · Inicial '+money(d.amount)+' · '+niceDate(d.date)+'</span><div class="debt-bottom"><span class="pill">'+(remaining?"Pendiente":"Saldada")+'</span><button class="mini-btn" data-edit="'+safe(d.id)+'">Editar</button><button class="mini-btn" data-delete="'+safe(d.id)+'">Eliminar</button><button class="debt-btn" data-pay="'+safe(d.id)+'" '+(remaining<=0?"disabled":"")+'>Registrar abono</button></div></div>').join(""):empty("Sin deudas. Puedes registrar una desde el botón Nueva.");
  enhancedRender(s);
 }
@@ -84,7 +85,7 @@ async function importBackup(file){try{if(!file)return;if(file.size>20*1024*1024)
 async function eraseAll(){if(!confirm("¿Eliminar TODOS los movimientos, deudas y abonos de ESTE dispositivo?"))return;if(!confirm("Confirmación final: los datos no se pueden recuperar sin una copia JSON."))return;await transaction("readwrite",store=>store.clear());month=(nowBogota().slice(0,7) < FIRST_MONTH ? FIRST_MONTH : nowBogota().slice(0,7));await refresh();showToast("Datos locales eliminados.")}
 
 /* FUNCIONES AVANZADAS · edición local independiente */
-let categoryKind="income",conceptSelection=null,fixedEditing=null;
+let categoryKind="income",conceptSelection=null,fixedEditing=null,quickPayPlanId=null,quickPaySaving=false;
 const categoryNames={income:"Ingresos",variable:"Gastos variables",fixed:"Gastos fijos",receivable:"Deudas a favor",payable:"Deudas en contra"};
 const categoryColors=["#65bda0","#eead80","#8b9dcc","#b9a0d8","#d77d75","#a3bb6f","#5f97ae"];
 function fixedPlans(period){
@@ -127,11 +128,14 @@ function categoryItems(kind){
 }
 function enhancedRender(s){
  const plans=eligiblePlans(),fixedPaid=entries.filter(x=>x.kind==="expense"&&x.expenseClass==="fixed"&&x.date.slice(0,7)===month).reduce((a,x)=>a+x.amount,0);
- const planned=plans.reduce((a,p)=>a+p.amount,0),unpaid=plans.filter(x=>["urgent","overdue"].includes(x.status)&&x.amount>0);
- $("fixedPaid").textContent=money(fixedPaid);$("fixedPlanned").textContent=money(planned);
- $("fixedAlerts").classList.toggle("hidden",!unpaid.length);
- $("alertsCount").textContent=unpaid.length+" "+(unpaid.length===1?"compromiso":"compromisos");
- $("alertItems").innerHTML=unpaid.map(p=>'<button class="alert-row" data-due="'+safe(p.id)+'"><span class="alert-date">'+p.due.slice(-2)+'</span><span><strong>'+safe(p.category)+'</strong><small>'+(p.status==="overdue"?"Vencido":"Próximo a vencer")+' · '+niceDate(p.due)+'</small></span><b>'+money(p.amount)+'</b></button>').join("");
+ const planned=plans.reduce((a,p)=>a+p.amount,0);
+ const upcoming=plans.filter(p=>p.status!=="paid"&&p.amount>0).sort((a,b)=>a.due.localeCompare(b.due)||a.category.localeCompare(b.category)).slice(0,3);
+ $("fixedPaid").textContent=money(fixedPaid);
+ $("fixedAlerts").classList.toggle("hidden",!upcoming.length);
+ $("alertItems").innerHTML=upcoming.map(p=>{
+   const dueLabel=p.status==="overdue"?"Vencido":p.days===0?"Vence hoy":p.days===1?"Vence mañana":p.days>1?"Faltan "+p.days+" días":"Vence "+niceDate(p.due);
+   return '<button type="button" class="alert-row" data-due="'+safe(p.id)+'" aria-label="Registrar pago de '+safe(p.category)+', '+money(p.amount)+'"><span class="alert-date">'+p.due.slice(-2)+'</span><span><strong>'+safe(p.category)+'</strong><small>'+safe(dueLabel)+' · '+niceDate(p.due)+'</small></span><b>'+money(p.amount)+'</b></button>';
+ }).join("");
  const items=categoryItems(categoryKind),total=items.reduce((a,x)=>a+x.amount,0),max=Math.max(1,...items.map(x=>x.amount));
  $("categoryMetricLabel").textContent=categoryKind==="fixed"?"Total pagado":categoryKind==="payable"||categoryKind==="receivable"?"Saldo pendiente":"Total del mes";
  $("categoryMetricTotal").textContent=money(total);$("categoryMetricCount").textContent=String(items.length);
@@ -166,16 +170,37 @@ async function saveFixed(e){
  await transaction("readwrite",store=>store.put(item));$("fixedDialog").close();await refresh();showToast("Gasto fijo guardado.");
 }
 function payDue(id){
- const plan=entries.find(x=>x.kind==="fixed_plan"&&x.id===id);if(!plan)return;
- if(plan.amount<=0){showToast("Configura un valor previsto mayor que cero.");return}
- openForm("expense");
- $("entryKind").value="expense";
- $("entryAmount").value=String(plan.amount);
- $("entryCategory").value=plan.category;
- $("expenseClass").value="fixed";
+ const plan=eligiblePlans().find(p=>p.id===id);
+ if(!plan||plan.status==="paid"){showToast("Este pago ya está registrado.");return}
+ if(plan.amount<=0){showToast("Configura un importe previsto mayor que cero.");return}
+ quickPayPlanId=plan.id;
+ $("quickPayForm").reset();
+ $("quickPayDescription").textContent=plan.category+" · Vence el "+niceDate(plan.due);
+ $("quickPayAmount").value=String(plan.amount);
  const today=nowBogota();
- $("entryDate").value=today.slice(0,7)===month?today:month+"-01";
- adjustForm();
+ $("quickPayDate").value=today.slice(0,7)===month?today:month+"-01";
+ $("quickPayAccount").value="digital";
+ $("quickPayError").textContent="";
+ $("confirmQuickPay").disabled=false;
+ $("quickPayDialog").showModal();
+}
+async function confirmQuickPay(event){
+ event.preventDefault();
+ if(quickPaySaving)return;
+ const plan=eligiblePlans().find(p=>p.id===quickPayPlanId);
+ if(!plan||plan.status==="paid"){$("quickPayError").textContent="El pago ya fue registrado o el gasto fijo cambió.";return}
+ const amount=Number($("quickPayAmount").value),date=$("quickPayDate").value,account=$("quickPayAccount").value;
+ if(!Number.isSafeInteger(amount)||amount<=0){$("quickPayError").textContent="Introduce un importe válido mayor a cero.";return}
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||date.slice(0,7)!==month||date<START||!Number.isFinite(Date.parse(date+"T12:00:00Z"))){$("quickPayError").textContent="Selecciona una fecha válida dentro de "+monthText(month)+".";return}
+ if(account!=="digital"&&account!=="cash"){$("quickPayError").textContent="Selecciona una cuenta válida.";return}
+ const item={id:uid(),kind:"expense",expenseClass:"fixed",category:plan.category,description:"Pago fijo",amount,date,account,created:new Date().toISOString(),target:null,direction:null,debtId:null};
+ quickPaySaving=true;$("confirmQuickPay").disabled=true;
+ try{
+  await transaction("readwrite",store=>store.put(item));
+  $("quickPayDialog").close();quickPayPlanId=null;
+  await refresh();showToast("Pago registrado. Disponible actualizado.");
+ }catch(err){$("quickPayError").textContent="No se pudo guardar: "+err.message}
+ finally{quickPaySaving=false;$("confirmQuickPay").disabled=false}
 }
 function relatedTo(kind,label){
  return entries.filter(x=>{if(kind==="income")return x.kind==="income"&&x.category===label&&x.date.slice(0,7)===month;
@@ -214,6 +239,16 @@ async function undoLatest(){
 }
 function enhancedBind(){
  $("undoLatest").addEventListener("click",undoLatest);
+ $("openAllFixed").addEventListener("click",()=>{categoryKind="fixed";navigate("categories");render()});
+ $("quickPayForm").addEventListener("submit",confirmQuickPay);
+ $("closeQuickPay").addEventListener("click",()=>$("quickPayDialog").close());
+ $("cancelQuickPay").addEventListener("click",()=>$("quickPayDialog").close());
+ document.querySelectorAll("[data-home-category]").forEach(button=>button.addEventListener("click",()=>{categoryKind=button.dataset.homeCategory;navigate("categories");render()}));
+ document.querySelectorAll("[data-home-target]").forEach(button=>{
+  const go=()=>{if(button.dataset.homeFilter)$("filterKind").value=button.dataset.homeFilter;navigate(button.dataset.homeTarget);render()};
+  button.addEventListener("click",go);
+  if(button.getAttribute("role")==="button")button.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();go()}});
+ });
  $("categoryTabs").addEventListener("click",e=>{const b=e.target.closest("[data-category]");if(b){categoryKind=b.dataset.category;render()}});
  $("categoryAddBtn").addEventListener("click",()=>{if(categoryKind==="fixed")openFixed();else if(categoryKind==="receivable"||categoryKind==="payable"){openForm("debt");$("entryDirection").value=categoryKind;}else openForm(categoryKind==="income"?"income":"expense");if(categoryKind==="variable")$("expenseClass").value="variable"});
  $("fixedForm").addEventListener("submit",saveFixed);

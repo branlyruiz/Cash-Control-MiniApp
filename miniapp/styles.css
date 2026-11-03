@@ -67,3 +67,18 @@
 .sheet-chevron{color:#9eabba;font-size:25px}
 .sheet-close{display:block;margin:12px auto 0;border:0;background:transparent;padding:8px 20px;color:#617086;font-size:13px;font-weight:750}
 @media(max-width:390px){.bottom-dock{width:calc(100% - 20px);gap:8px}.dock-pill{padding:5px}.dock-item{height:48px;padding:0 5px;gap:5px}.dock-icon svg{width:20px;height:20px}.dock-item.active{flex:1.45}.dock-label{font-size:11px}.dock-fab{width:60px;height:60px;flex-basis:60px;font-size:36px}.more-sheet{bottom:calc(84px + env(safe-area-inset-bottom))}}
+
+/* Inicio interactivo: pagos prioritarios y tarjetas navegables */
+.metric-button{display:flex;flex-direction:column;align-items:flex-start;text-align:left;width:100%;cursor:pointer;color:var(--ink)}
+.metric-button:active,.dashboard-link:active{transform:scale(.988)}
+.metric-button:focus-visible,.dashboard-link:focus-visible{outline:3px solid #87c9b1;outline-offset:3px}
+.dashboard-link{cursor:pointer;transition:transform .15s ease}
+.metric-button{transition:transform .15s ease}
+.alert-heading>div{display:flex;flex-direction:column;gap:4px;min-width:0}
+.alert-heading small{font-weight:500;color:#aa7e69;font-size:11px}
+.alert-row{cursor:pointer;transition:background .15s ease,transform .15s ease}
+.alert-row:hover{background:#fffaf6}
+.alert-row:active{transform:scale(.99)}
+.alert-row:focus-visible{outline:3px solid #dda984;outline-offset:2px}
+.quickpay-summary{font-weight:750;color:#28364a;font-size:15px;line-height:1.5;margin:4px 0 20px}
+#quickPayDialog .small-note{margin:0 0 12px}
