@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1,viewport-fit=cover"/>
+<meta name="theme-color" content="#111827"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="apple-mobile-web-app-title" content="Cash Control"/>
+<meta name="description" content="Cash Control MiniApp de BRANLY RUIZ: tus finanzas guardadas en este dispositivo."/>
+<link rel="manifest" href="./manifest.webmanifest"/>
+<link rel="icon" href="./icon.svg" type="image/svg+xml"/>
+<link rel="apple-touch-icon" href="./icon-180.png"/>
+<link rel="stylesheet" href="./styles.css"/>
+<title>Cash Control · BRANLY RUIZ</title>
+<script defer src="./app.js"></script>
+</head>
+<body>
+<div class="app">
+<header class="top"><div class="brand"><div class="brand-mark">BR</div><div><p class="brand-kicker">BRANLY RUIZ</p><h1>Cash Control</h1></div></div><button class="icon-button" id="settingsButton" type="button" aria-label="Configuración">⚙</button></header>
+<main>
+<section id="dashboardView" class="view active">
+ <div class="period-row"><div><p class="eyebrow">RESUMEN FINANCIERO</p><h2 id="periodLabel">Noviembre 2026</h2></div><div class="period-controls"><button id="prevMonth" aria-label="Mes anterior" class="round-btn">‹</button><button id="nextMonth" aria-label="Mes siguiente" class="round-btn">›</button></div></div>
+ <article class="balance-card"><div class="balance-top"><span>Disponible total</span><span class="month-chip" id="balanceMonth">Nov 2026</span></div><div class="balance-value" id="totalBalance">$ 0</div><div class="account-grid"><div><span>Cuenta digital</span><strong id="digitalBalance">$ 0</strong></div><div><span>Efectivo</span><strong id="cashBalance">$ 0</strong></div></div></article>
+ <div class="metric-grid"><article class="metric"><div class="metric-icon incoming">↙</div><span>Entradas del mes</span><strong id="incomeTotal">$ 0</strong></article><article class="metric"><div class="metric-icon outgoing">↗</div><span>Salidas del mes</span><strong id="expenseTotal">$ 0</strong></article></div>
+ <div class="section-title"><h3>Distribución de gastos</h3><span id="expenseCount">0 movimientos</span></div><section class="panel" id="categorySummary"><div class="empty-small">Tus categorías aparecerán aquí cuando registres gastos.</div></section>
+ <div class="section-title"><h3>Últimos movimientos</h3><button class="text-button" data-nav="movements">Ver todos</button></div><section class="panel activity" id="recentTransactions"></section>
+</section>
+<section id="movementsView" class="view">
+ <div class="page-heading"><p class="eyebrow">TU HISTORIAL</p><h2>Movimientos</h2><p>Ingresos, gastos, transferencias y abonos.</p></div>
+ <div class="filterbar"><label for="filterKind">Filtrar</label><select id="filterKind"><option value="all">Todos</option><option value="income">Ingresos</option><option value="expense">Gastos</option><option value="transfer">Transferencias</option><option value="payment">Abonos</option></select></div>
+ <section class="panel activity" id="allTransactions"></section>
+</section>
+<section id="debtsView" class="view">
+ <div class="page-heading"><p class="eyebrow">SALDOS PENDIENTES</p><h2>Deudas</h2><p>Registra lo que debes y lo que te deben. Crear una deuda no mueve dinero.</p></div>
+ <div class="metric-grid"><article class="metric"><div class="metric-icon incoming">+</div><span>Por cobrar</span><strong id="receivableTotal">$ 0</strong></article><article class="metric"><div class="metric-icon outgoing">−</div><span>Por pagar</span><strong id="payableTotal">$ 0</strong></article></div>
+ <div class="section-title"><h3>Deudas registradas</h3><button class="text-button" id="newDebtBtn">+ Nueva</button></div>
+ <section class="panel activity" id="debtList"></section>
+</section>
+<section id="settingsView" class="view">
+ <div class="page-heading"><p class="eyebrow">DATOS EN ESTE DISPOSITIVO</p><h2>Configuración</h2><p>Todo se guarda localmente en este navegador. No hay cuenta ni sincronización en la nube.</p></div>
+ <section class="panel settings-panel">
+  <div class="settings-item"><div><strong>Copia de seguridad completa</strong><p>Exporta un archivo JSON para restaurar movimientos y deudas en otro dispositivo.</p></div><button class="small-action" id="exportBackup">Exportar</button></div>
+  <div class="settings-item"><div><strong>Restaurar copia</strong><p>Reemplaza los registros de este dispositivo con los del archivo elegido.</p></div><button class="small-action" id="importBackup">Importar</button><input type="file" id="backupFile" accept=".json,application/json" hidden/></div>
+  <div class="settings-item"><div><strong>Exportar CSV</strong><p>Descarga tus movimientos para analizarlos en Excel.</p></div><button class="small-action" id="exportCsv">Descargar</button></div>
+  <div class="settings-item"><div><strong>Eliminar todos los datos</strong><p>Deja la aplicación en blanco. Esta acción no puede deshacerse sin una copia.</p></div><button class="small-action danger" id="eraseData">Eliminar</button></div>
+ </section>
+ <p class="small-note">Inicio contable: 1 de noviembre de 2026. Los saldos comienzan en $0 y se calculan a partir de tus registros. La eliminación de datos del navegador puede borrar la información guardada.</p>
+</section>
+</main>
+<button id="fab" class="fab" aria-label="Registrar movimiento">＋ <span>Nuevo movimiento</span></button>
+<nav class="bottom-nav" aria-label="Navegación principal">
+<button data-nav="dashboard" class="nav-item active"><span>◫</span>Inicio</button>
+<button data-nav="movements" class="nav-item"><span>⇄</span>Movimientos</button>
+<button data-nav="debts" class="nav-item"><span>▤</span>Deudas</button>
+<button data-nav="settings" class="nav-item"><span>⚙</span>Ajustes</button>
+</nav>
+</div>
+<dialog id="entryDialog" class="entry-dialog"><form id="entryForm" method="dialog" novalidate>
+<header class="dialog-head"><div><p class="eyebrow" id="formEyebrow">REGISTRO</p><h2 id="dialogTitle">Nuevo movimiento</h2></div><button type="button" id="closeDialog" class="close" aria-label="Cerrar">×</button></header>
+<div class="form-content">
+<label class="field">Tipo de registro<select name="kind" id="entryKind" required><option value="income">Ingreso</option><option value="expense">Gasto</option><option value="transfer">Transferencia</option><option value="debt">Nueva deuda</option><option value="payment">Abono a deuda</option></select></label>
+<label class="field">Valor en COP<input name="amount" id="entryAmount" type="number" inputmode="numeric" min="1" step="1" placeholder="0" required/></label>
+<div class="form-grid"><label class="field">Fecha<input name="date" id="entryDate" type="date" min="2026-11-01" required/></label><label class="field" id="accountField">Cuenta<select name="account" id="entryAccount"><option value="digital">Digital</option><option value="cash">Efectivo</option></select></label></div>
+<label class="field hidden" id="targetField">Transferir a<select name="target" id="entryTarget"><option value="cash">Efectivo</option><option value="digital">Digital</option></select></label>
+<label class="field" id="categoryField">Categoría<input name="category" id="entryCategory" list="categoriesList" maxlength="60" placeholder="Ej. Alimentación"/><datalist id="categoriesList"></datalist></label>
+<label class="field hidden" id="directionField">Tipo de deuda<select name="direction" id="entryDirection"><option value="receivable">Me deben</option><option value="payable">Yo debo</option></select></label>
+<label class="field hidden" id="debtField">Deuda a abonar<select name="debtId" id="entryDebt"><option value="">Selecciona una deuda</option></select></label>
+<label class="field" id="descriptionField">Descripción (opcional)<input name="description" id="entryDescription" maxlength="180" placeholder="Añade un detalle"/></label>
+<p class="validation" id="formError" role="alert"></p>
+</div>
+<footer class="dialog-actions"><button type="button" class="cancel-btn" id="cancelEntry">Cancelar</button><button type="submit" class="save-btn">Guardar registro</button></footer>
+</form></dialog>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
