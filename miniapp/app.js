@@ -43,7 +43,29 @@ $("payableTotal").textContent=money(active.filter(x=>x.entry.direction==="payabl
 $("debtList").innerHTML=active.length?active.map(({entry:d,remaining})=>'<div class="debt-row"><div class="debt-head"><strong>'+safe(d.category)+'</strong><strong>'+money(remaining)+'</strong></div><span class="debt-label">'+(d.direction==="receivable"?"Por cobrar":"Por pagar")+' · Inicial '+money(d.amount)+' · '+niceDate(d.date)+'</span><div class="debt-bottom"><span class="pill">'+(remaining?"Pendiente":"Saldada")+'</span><button class="mini-btn" data-edit="'+safe(d.id)+'">Editar</button><button class="mini-btn" data-delete="'+safe(d.id)+'">Eliminar</button><button class="debt-btn" data-pay="'+safe(d.id)+'" '+(remaining<=0?"disabled":"")+'>Registrar abono</button></div></div>').join(""):empty("Sin deudas. Puedes registrar una desde el botón Nueva.");
  enhancedRender(s);
 }
-function navigate(name){view=name;document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.id===name+"View"));document.querySelectorAll(".nav-item").forEach(b=>b.classList.toggle("active",b.dataset.nav===name));$("fab").style.display=name==="settings"?"none":"flex";window.scrollTo({top:0,behavior:"auto"})}
+function openMoreSheet(){
+ $("moreSheet").classList.remove("hidden");
+ $("sheetBackdrop").classList.remove("hidden");
+ $("openMoreMenu").setAttribute("aria-expanded","true");
+ $("moreSheet").focus();
+}
+function closeMoreSheet(){
+ $("moreSheet").classList.add("hidden");
+ $("sheetBackdrop").classList.add("hidden");
+ $("openMoreMenu").setAttribute("aria-expanded","false");
+}
+function navigate(name){
+ closeMoreSheet();
+ view=name;
+ document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.id===name+"View"));
+ document.querySelectorAll(".dock-item").forEach(b=>{
+  const active=b.dataset.nav?b.dataset.nav===name:["balance","debts","settings"].includes(name);
+  b.classList.toggle("active",active);
+  if(b.dataset.nav){if(active)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current")}
+ });
+ $("fab").style.display=name==="settings"?"none":"grid";
+ window.scrollTo({top:0,behavior:"auto"});
+}
 function moveMonth(shift){const [y,m]=month.split("-").map(Number);const d=new Date(Date.UTC(y,m-1+shift,1));const target=d.toISOString().slice(0,7);if(target>=FIRST_MONTH){month=target;render()}}
 function addOptions(){const categories=[...new Set(entries.filter(x=>["income","expense"].includes(x.kind)).map(x=>x.category).filter(Boolean))].sort();$("categoriesList").innerHTML=categories.map(x=>'<option value="'+safe(x)+'">').join("")}
 function populateDebtOptions(exclude){const date=$("entryDate").value||nowBogota(),list=debtsAvailable(date,exclude);$("entryDebt").innerHTML='<option value="">Selecciona una deuda</option>'+list.map(({entry:d,remaining})=>'<option value="'+safe(d.id)+'">'+safe(d.category)+' · '+money(remaining)+'</option>').join("");if(selectedDebt&&list.some(x=>x.entry.id===selectedDebt))$("entryDebt").value=selectedDebt}
@@ -210,7 +232,14 @@ function enhancedBind(){
  });
 }
 
-function bind(){document.querySelectorAll("[data-nav]").forEach(x=>x.addEventListener("click",()=>navigate(x.dataset.nav)));$("settingsButton").addEventListener("click",()=>navigate("settings"));$("prevMonth").addEventListener("click",()=>moveMonth(-1));$("nextMonth").addEventListener("click",()=>moveMonth(1));$("filterKind").addEventListener("change",render);$("fab").addEventListener("click",()=>openForm());$("newDebtBtn").addEventListener("click",()=>openForm("debt"));$("entryKind").addEventListener("change",adjustForm);$("entryDate").addEventListener("change",()=>{if($("entryKind").value==="payment")populateDebtOptions(editing?.kind==="payment"?editing.id:null)});$("entryAccount").addEventListener("change",()=>{if($("entryKind").value==="transfer")$("entryTarget").value=$("entryAccount").value==="digital"?"cash":"digital"});$("entryForm").addEventListener("submit",saveForm);$("closeDialog").addEventListener("click",()=>$("entryDialog").close());$("cancelEntry").addEventListener("click",()=>$("entryDialog").close());document.addEventListener("click",e=>{const b=e.target.closest("[data-edit],[data-delete],[data-pay]");if(!b)return;if(b.dataset.edit){const x=entries.find(z=>z.id===b.dataset.edit);if(x)openForm(x.kind,x)}else if(b.dataset.delete)removeEntry(b.dataset.delete);else if(b.dataset.pay)openForm("payment",null,b.dataset.pay)});$("exportBackup").addEventListener("click",exportBackup);$("exportCsv").addEventListener("click",exportCsv);$("importBackup").addEventListener("click",()=>$("backupFile").click());$("backupFile").addEventListener("change",e=>importBackup(e.target.files?.[0]));$("eraseData").addEventListener("click",eraseAll);enhancedBind()}
+function bind(){
+ document.querySelectorAll("[data-nav]").forEach(x=>x.addEventListener("click",()=>navigate(x.dataset.nav)));
+ $("openMoreMenu").addEventListener("click",()=>{$("moreSheet").classList.contains("hidden")?openMoreSheet():closeMoreSheet()});
+ $("closeMoreMenu").addEventListener("click",closeMoreSheet);
+ $("sheetBackdrop").addEventListener("click",closeMoreSheet);
+ document.querySelectorAll("[data-sheet-nav]").forEach(x=>x.addEventListener("click",()=>navigate(x.dataset.sheetNav)));
+ document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("moreSheet").classList.contains("hidden"))closeMoreSheet()});
+$("settingsButton").addEventListener("click",()=>navigate("settings"));$("prevMonth").addEventListener("click",()=>moveMonth(-1));$("nextMonth").addEventListener("click",()=>moveMonth(1));$("filterKind").addEventListener("change",render);$("fab").addEventListener("click",()=>openForm());$("newDebtBtn").addEventListener("click",()=>openForm("debt"));$("entryKind").addEventListener("change",adjustForm);$("entryDate").addEventListener("change",()=>{if($("entryKind").value==="payment")populateDebtOptions(editing?.kind==="payment"?editing.id:null)});$("entryAccount").addEventListener("change",()=>{if($("entryKind").value==="transfer")$("entryTarget").value=$("entryAccount").value==="digital"?"cash":"digital"});$("entryForm").addEventListener("submit",saveForm);$("closeDialog").addEventListener("click",()=>$("entryDialog").close());$("cancelEntry").addEventListener("click",()=>$("entryDialog").close());document.addEventListener("click",e=>{const b=e.target.closest("[data-edit],[data-delete],[data-pay]");if(!b)return;if(b.dataset.edit){const x=entries.find(z=>z.id===b.dataset.edit);if(x)openForm(x.kind,x)}else if(b.dataset.delete)removeEntry(b.dataset.delete);else if(b.dataset.pay)openForm("payment",null,b.dataset.pay)});$("exportBackup").addEventListener("click",exportBackup);$("exportCsv").addEventListener("click",exportCsv);$("importBackup").addEventListener("click",()=>$("backupFile").click());$("backupFile").addEventListener("change",e=>importBackup(e.target.files?.[0]));$("eraseData").addEventListener("click",eraseAll);enhancedBind()}
 async function init(){try{db=await openDB();month=(nowBogota().slice(0,7) < FIRST_MONTH ? FIRST_MONTH : nowBogota().slice(0,7));bind();navigate("dashboard");await refresh();if("serviceWorker"in navigator&&location.protocol==="https:")navigator.serviceWorker.register("./sw.js").catch(()=>{});if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{})}catch(err){document.querySelector("main").innerHTML='<div class="panel empty-small">No se pudo iniciar Cash Control. Revisa la fecha del dispositivo y vuelve a cargar la aplicación.<br>'+safe(err.message)+'</div>';document.querySelector(".fab").hidden=true;console.error(err)}}
 init();
 })();
