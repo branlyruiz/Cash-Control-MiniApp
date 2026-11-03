@@ -82,3 +82,33 @@
 .alert-row:focus-visible{outline:3px solid #dda984;outline-offset:2px}
 .quickpay-summary{font-weight:750;color:#28364a;font-size:15px;line-height:1.5;margin:4px 0 20px}
 #quickPayDialog .small-note{margin:0 0 12px}
+
+/* Tarjetas analíticas de Inicio y catálogo frecuente */
+.home-data-card{background:#fff;border:1px solid var(--line);border-radius:25px;padding:19px;margin-top:15px;box-shadow:var(--shadow)}
+.home-card-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}
+.home-card-head h3{margin:3px 0 0;font-size:17px;letter-spacing:-.035em}
+.home-card-head .eyebrow{font-size:10px}
+.cashflow-display{display:flex;align-items:center;gap:22px;flex-wrap:wrap}
+.cashflow-donut{width:168px;height:168px;border-radius:50%;display:grid;place-items:center;flex:none;background:conic-gradient(#e8edf1 0% 100%)}
+.cashflow-center{width:114px;height:114px;border-radius:50%;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:7px}
+.cashflow-center small{color:#9aa3b0;font-size:10px}
+.cashflow-center strong{font-size:17px;letter-spacing:-.04em;margin-top:5px;overflow-wrap:anywhere}
+.cashflow-legend{display:flex;flex-direction:column;gap:10px;flex:1;min-width:130px}
+.cashflow-legend button{display:grid;grid-template-columns:10px 1fr;column-gap:9px;row-gap:3px;border:0;background:transparent;text-align:left;padding:7px;color:#7d8797;font-size:12px}
+.cashflow-legend strong{grid-column:2;color:var(--ink);font-size:19px;letter-spacing:-.03em}
+.legend-dot{width:10px;height:10px;border-radius:50%;margin-top:3px}.legend-green{background:#31b887}.legend-coral{background:#ed9c80}
+.home-bars{display:flex;flex-direction:column;gap:13px}
+.variable-bar-row{display:block;width:100%;text-align:left;padding:0;background:transparent;border:0;color:var(--ink)}
+.variable-bar-label{display:flex;justify-content:space-between;gap:10px;font-size:12px;margin-bottom:7px}
+.variable-bar-label span{min-width:0;overflow-wrap:anywhere}.variable-bar-label strong{white-space:nowrap}
+.variable-bar-track{display:block;width:100%;height:9px;border-radius:99px;background:#eff2f6;overflow:hidden}
+.variable-bar-fill{display:block;height:100%;border-radius:99px}
+.home-debt-total{display:flex;justify-content:space-between;align-items:center;gap:12px;border-radius:16px;background:#fff3ed;padding:15px;margin-bottom:12px}
+.home-debt-total small{color:#a07b66}.home-debt-total strong{font-size:22px;color:#b96046;letter-spacing:-.04em}
+.home-debt-row{display:flex;width:100%;justify-content:space-between;text-align:left;align-items:center;gap:12px;padding:12px 1px;background:transparent;border:0;border-bottom:1px solid #eef0f4}
+.home-debt-row:last-child{border-bottom:0}
+.home-debt-row strong{font-size:13px;display:block}.home-debt-row small{font-size:11px;color:#949ead;display:block;margin-top:4px}
+.home-debt-row b{font-size:14px;white-space:nowrap}
+#variableCategoryPicker{font-weight:700}
+#newVariableCategory{white-space:nowrap}
+@media(max-width:420px){.home-data-card{padding:16px}.cashflow-display{gap:12px}.cashflow-donut{height:137px;width:137px}.cashflow-center{height:94px;width:94px}.cashflow-center strong{font-size:14px}.cashflow-legend strong{font-size:17px}}
