@@ -95,7 +95,7 @@ function addOptions(){
 function syncVariableCategoryPicker(){
  const visible=$("entryKind").value==="expense"&&$("expenseClass").value==="variable";
  $("variablePickerField").classList.toggle("hidden",!visible);
- if(!visible){$("categoryField").classList.remove("hidden");return}
+ if(!visible){$("categoryField").classList.toggle("hidden",!["income","expense","debt"].includes($("entryKind").value));return}
  const categories=variableCategoryNames(),value=$("entryCategory").value;
  $("variableCategoryPicker").innerHTML='<option value="__choose__">Selecciona un concepto</option>'+categories.map(c=>'<option value="'+safe(c)+'">'+safe(c)+'</option>').join("")+'<option value="__new__">+ Crear nuevo concepto</option>';
  const known=categories.find(c=>categoryKey(c)===categoryKey(value));
