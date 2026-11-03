@@ -173,6 +173,19 @@ function enhancedRender(s){
    const dueLabel=p.status==="overdue"?"Vencido":p.days===0?"Vence hoy":p.days===1?"Vence mañana":p.days>1?"Faltan "+p.days+" días":"Vence "+niceDate(p.due);
    return '<button type="button" class="alert-row" data-due="'+safe(p.id)+'" aria-label="Registrar pago de '+safe(p.category)+', '+money(p.amount)+'"><span class="alert-date">'+p.due.slice(-2)+'</span><span><strong>'+safe(p.category)+'</strong><small>'+safe(dueLabel)+' · '+niceDate(p.due)+'</small></span><b>'+money(p.amount)+'</b></button>';
  }).join("");
+
+ const allOutflows=s.monthly.reduce((sum,x)=>sum+(x.kind==="expense"?x.amount:x.kind==="payment"&&amountClass(x)==="negative"?x.amount:0),0);
+ const inflows=s.income,flowTotal=inflows+allOutflows;
+ const percent=flowTotal?Math.round(inflows/flowTotal*10000)/100:0;
+ $("cashflowDonut").style.background=flowTotal?"conic-gradient(#31b887 0% "+percent+"%,#ed9c80 "+percent+"% 100%)":"conic-gradient(#e8edf1 0% 100%)";
+ $("cashflowTotal").textContent=money(flowTotal);$("chartIncome").textContent=money(inflows);$("chartExpense").textContent=money(allOutflows);
+ $("cashflowDonut").setAttribute("aria-label","Ingresos "+money(inflows)+", egresos "+money(allOutflows));
+ const variableGroups=Object.entries(s.groups).filter(([cat])=>s.monthly.some(x=>x.kind==="expense"&&x.expenseClass!=="fixed"&&x.category===cat)).map(([cat])=>[cat,s.monthly.filter(x=>x.kind==="expense"&&x.expenseClass!=="fixed"&&x.category===cat).reduce((sum,x)=>sum+x.amount,0)]).sort((a,b)=>b[1]-a[1]);
+ const variableMax=Math.max(1,...variableGroups.map(x=>x[1]));
+ $("variableCategoryBars").innerHTML=variableGroups.length?variableGroups.map(([name,value],i)=>'<button type="button" class="variable-bar-row" data-variable-category="'+safe(name)+'" aria-label="Abrir '+safe(name)+', '+money(value)+'"><span class="variable-bar-label"><span>'+safe(name)+'</span><strong>'+money(value)+'</strong></span><span class="variable-bar-track"><span class="variable-bar-fill" style="width:'+Math.round(value/variableMax*100)+'%;background:'+categoryColors[i%categoryColors.length]+'"></span></span></button>').join(""):empty("Todavía no hay gastos variables. Las categorías aparecerán aquí al registrar importes.");
+ const openDebts=entries.filter(x=>x.kind==="debt"&&x.direction==="payable"&&x.date<=s.until).map(d=>({id:d.id,label:d.category,balance:debtBalance(d,s.until)})).filter(x=>x.balance>0).sort((a,b)=>b.balance-a.balance);
+ $("reminderDebtTotal").textContent=money(openDebts.reduce((sum,x)=>sum+x.balance,0));
+ $("reminderDebtRows").innerHTML=openDebts.length?openDebts.slice(0,3).map(d=>'<button type="button" class="home-debt-row" data-reminder-debt="'+safe(d.id)+'"><span><strong>'+safe(d.label)+'</strong><small>Pendiente por pagar</small></span><b>'+money(d.balance)+'</b></button>').join(""):empty("No tienes deudas en contra pendientes.");
  const items=categoryItems(categoryKind),total=items.reduce((a,x)=>a+x.amount,0),max=Math.max(1,...items.map(x=>x.amount));
  $("categoryMetricLabel").textContent=categoryKind==="fixed"?"Total pagado":categoryKind==="payable"||categoryKind==="receivable"?"Saldo pendiente":"Total del mes";
  $("categoryMetricTotal").textContent=money(total);$("categoryMetricCount").textContent=String(items.length);
@@ -300,6 +313,8 @@ async function undoLatest(){
 }
 function enhancedBind(){
  $("undoLatest").addEventListener("click",undoLatest);
+ $("variableCategoryBars").addEventListener("click",e=>{const b=e.target.closest("[data-variable-category]");if(!b)return;categoryKind="variable";navigate("categories");render();openConcept(b.dataset.variableCategory)});
+ $("reminderDebtRows").addEventListener("click",e=>{const b=e.target.closest("[data-reminder-debt]");if(!b)return;categoryKind="payable";navigate("categories");render();const d=entries.find(x=>x.id===b.dataset.reminderDebt);if(d)openConcept(d.category)});
  $("newVariableCategory").addEventListener("click",openVariableCategory);
  $("variableCategoryForm").addEventListener("submit",saveVariableCategory);
  $("closeVariableCategory").addEventListener("click",()=>$("variableCategoryDialog").close());
