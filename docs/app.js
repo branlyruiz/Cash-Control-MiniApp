@@ -108,7 +108,11 @@ function openForm(kind="income",record=null,debtId=null){editing=record;selected
 function pendingDebtPayments(id,exclude=null){return entries.filter(x=>x.kind==="payment"&&x.debtId===id&&x.id!==exclude).reduce((s,x)=>s+x.amount,0)}
 function validEntry(x,original){if(!["income","expense","transfer","debt","payment"].includes(x.kind))return "Tipo de registro no válido.";if(!/^\d{4}-\d{2}-\d{2}$/.test(x.date)||x.date<START||!Number.isFinite(Date.parse(x.date+"T12:00:00Z")))return "La fecha debe ser desde el 1 de noviembre de 2026.";if(!Number.isSafeInteger(x.amount)||x.amount<=0)return "Introduce un importe entero mayor que cero.";if(!["digital","cash"].includes(x.account))return "Selecciona una cuenta válida.";if(["income","expense","debt"].includes(x.kind)&&!x.category)return "Indica la categoría o concepto.";if(x.kind==="expense"&&!["fixed","variable"].includes(x.expenseClass))return "Selecciona gasto fijo o variable.";if(x.kind==="transfer"&&(!["digital","cash"].includes(x.target)||x.account===x.target))return "La cuenta de destino debe ser diferente.";if(original?.kind==="debt"&&x.kind!=="debt"&&entries.some(p=>p.kind==="payment"&&p.debtId===original.id))return "No cambies el tipo de una deuda con abonos; elimina primero los abonos.";if(x.kind==="debt"){if(!["receivable","payable"].includes(x.direction))return "Selecciona el tipo de deuda.";if(original&&original.kind==="debt"){if(x.amount<pendingDebtPayments(x.id))return "La deuda no puede ser menor que los abonos registrados.";if(x.date>entries.filter(q=>q.kind==="payment"&&q.debtId===x.id).map(q=>q.date).sort()[0]&&entries.some(q=>q.kind==="payment"&&q.debtId===x.id))return "La fecha inicial no puede ser posterior a sus abonos."}}
 if(x.kind==="payment"){const d=entries.find(q=>q.id===x.debtId&&q.kind==="debt");if(!d)return "Selecciona una deuda válida.";if(x.date<d.date)return "El abono no puede ser anterior a la deuda.";const paid=entries.filter(q=>q.kind==="payment"&&q.debtId===d.id&&q.id!==x.id).reduce((s,q)=>s+q.amount,0);if(x.amount>d.amount-paid)return "El abono supera el saldo pendiente ("+money(d.amount-paid)+").";}return ""}
-async function saveForm(e){e.preventDefault();const kind=$("entryKind").value;const x={id:editing?.id||uid(),created:editing?.created||new Date().toISOString(),kind,amount:Number($("entryAmount").value),date:$("entryDate").value,account:$("entryAccount").value,category:$("entryCategory").value.trim(),description:$("entryDescription").value.trim(),expenseClass:kind==="expense"?$("expenseClass").value:null,direction:kind==="debt"?$("entryDirection").value:null,target:kind==="transfer"?$("entryTarget").value:null,debtId:kind==="payment"?$("entryDebt").value:null};const msg=validEntry(x,editing);if(msg){$("formError").textContent=msg;return}try{await transaction("readwrite",store=>store.put(x));$("entryDialog").close();await refresh();showToast(editing?"Registro actualizado.":"Registro guardado.")}catch(err){$("formError").textContent="Error al guardar: "+err.message}}
+async function saveForm(e){e.preventDefault();const kind=$("entryKind").value;const x={id:editing?.id||uid(),created:editing?.created||new Date().toISOString(),kind,amount:Number($("entryAmount").value),date:$("entryDate").value,account:$("entryAccount").value,category:$("entryCategory").value.trim(),description:$("entryDescription").value.trim(),expenseClass:kind==="expense"?$("expenseClass").value:null,direction:kind==="debt"?$("entryDirection").value:null,target:kind==="transfer"?$("entryTarget").value:null,debtId:kind==="payment"?$("entryDebt").value:null};const msg=validEntry(x,editing);if(msg){$("formError").textContent=msg;return}try{
+ const shouldCatalog=x.kind==="expense"&&x.expenseClass==="variable"&&!entries.some(c=>c.kind==="category_variable"&&categoryKey(c.category)===categoryKey(x.category));
+ await transaction("readwrite",store=>{store.put(x);if(shouldCatalog)store.put({id:uid(),kind:"category_variable",date:START,created:new Date().toISOString(),account:"digital",category:x.category,description:"",amount:0})});
+ $("entryDialog").close();await refresh();showToast(editing?"Registro actualizado.":"Registro guardado.");
+}catch(err){$("formError").textContent="Error al guardar: "+err.message}}
 async function removeEntry(id){const x=entries.find(q=>q.id===id);if(!x)return;if(x.kind==="debt"&&entries.some(q=>q.kind==="payment"&&q.debtId===id)){showToast("Elimina los abonos antes de borrar esta deuda.");return}if(!confirm("¿Eliminar este registro de "+money(x.amount)+"?"))return;try{await transaction("readwrite",store=>store.delete(id));await refresh();showToast("Registro eliminado.")}catch(e){showToast("No fue posible eliminar.")}}
 function download(name,content,type){const url=URL.createObjectURL(new Blob([content],{type}));const a=document.createElement("a");a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1200)}
 function exportBackup(){const payload={application:"Cash-Control-MiniApp",version:1,exportedAt:new Date().toISOString(),startDate:START,entries};download("CashControl_BR_"+nowBogota()+".json",JSON.stringify(payload,null,2),"application/json");showToast("Copia de seguridad exportada.")}
@@ -174,6 +178,7 @@ function enhancedRender(s){
  $("categoryMetricTotal").textContent=money(total);$("categoryMetricCount").textContent=String(items.length);
  $("categoryTabs").querySelectorAll("button").forEach(b=>b.classList.toggle("active",b.dataset.category===categoryKind));
  $("categoryChart").innerHTML=items.length?items.filter(x=>x.amount>0).slice(0,12).map((x,i)=>'<div class="category-line"><div class="category-row"><span>'+safe(x.label)+'</span><strong>'+money(x.amount)+'</strong></div><div class="bar-track"><div class="bar-fill" style="width:'+Math.round(100*x.amount/max)+'%;background:'+categoryColors[i%categoryColors.length]+'"></div></div></div>').join("")||empty("Todavía no hay valores registrados este mes."):empty("Esta sección no tiene conceptos registrados.");
+ $("newVariableCategory").classList.toggle("hidden",categoryKind!=="variable");
  $("categoryRows").innerHTML=items.length?items.map(x=>{
   const plan=categoryKind==="fixed"?plans.find(p=>p.category===x.label):null;
   const due=plan?'<span class="concept-small">Día '+plan.dueDay+' · Previsto '+money(plan.amount)+' · '+(plan.status==="paid"?"Pagado":plan.status==="overdue"?"Vencido":plan.status==="urgent"?"Próximo":"Pendiente")+'</span>':"";
@@ -241,7 +246,7 @@ function relatedTo(kind,label){
  return x.kind==="debt"&&x.direction===kind&&x.category===label&&x.date.slice(0,7)<=month});
 }
 function openConcept(label){
- conceptSelection={kind:categoryKind,label};$("conceptDialogTitle").textContent=label;
+ conceptSelection={kind:categoryKind,label};$("conceptDialogTitle").textContent=label;$("deleteVariableCategory").classList.toggle("hidden",categoryKind!=="variable");
  const rows=relatedTo(categoryKind,label),plan=categoryKind==="fixed"?eligiblePlans().find(p=>p.category===label):null;
  $("conceptDetails").innerHTML=(plan?line("Previsto",plan.amount,"Día de pago "+plan.dueDay)+'<button class="small-action danger" data-remove-plan="'+safe(plan.id)+'">Eliminar plan recurrente</button>':"")+(rows.length?rows.map(x=>'<div class="concept-item"><div class="concept-name"><strong>'+niceDate(x.date)+'</strong><small>'+safe(x.description||kinds[x.kind])+'</small></div><div class="concept-right"><strong>'+money(x.amount)+'</strong><button class="mini-btn" data-concept-edit="'+safe(x.id)+'">Editar</button></div></div>').join(""):empty("Aún no hay movimientos de este concepto en el mes seleccionado."));
  $("conceptDialog").showModal();
@@ -255,6 +260,29 @@ async function renameSelected(){
  await transaction("readwrite",store=>{for(const x of changing)store.put({...x,category:next})});
  $("conceptDialog").close();await refresh();showToast("Concepto renombrado.");
 }
+
+function openVariableCategory(){
+ $("variableCategoryForm").reset();$("variableCategoryError").textContent="";$("variableCategoryDialog").showModal();
+}
+async function saveVariableCategory(e){
+ e.preventDefault();
+ const name=$("variableCategoryName").value.trim().replace(/\s+/g," ");
+ if(!name||name.length>60){$("variableCategoryError").textContent="Introduce un nombre válido de hasta 60 caracteres.";return}
+ if(variableCategoryNames().some(x=>categoryKey(x)===categoryKey(name))){$("variableCategoryError").textContent="Este concepto ya existe.";return}
+ const record={id:uid(),kind:"category_variable",date:START,created:new Date().toISOString(),account:"digital",category:name,description:"",amount:0};
+ try{await transaction("readwrite",store=>store.put(record));$("variableCategoryDialog").close();await refresh();if($("entryDialog").open){$("entryCategory").value=name;addOptions()}showToast("Categoría creada.")}catch(err){$("variableCategoryError").textContent=err.message}
+}
+async function removeVariableCategory(){
+ if(!conceptSelection||conceptSelection.kind!=="variable")return;
+ const label=conceptSelection.label;
+ const used=entries.some(x=>x.kind==="expense"&&x.expenseClass!=="fixed"&&categoryKey(x.category)===categoryKey(label));
+ if(used){showToast("Hay gastos registrados. Renombra el concepto o edita los gastos antes de quitarlo.");return}
+ if(!confirm("¿Quitar la categoría "+label+" de tus opciones?"))return;
+ const targets=entries.filter(x=>x.kind==="category_variable"&&categoryKey(x.category)===categoryKey(label));
+ await transaction("readwrite",store=>{for(const x of targets)store.delete(x.id)});
+ $("conceptDialog").close();await refresh();showToast("Categoría retirada.");
+}
+
 async function deleteSelected(){
  if(!conceptSelection)return;const {kind,label}=conceptSelection;const rows=relatedTo(kind,label);
  const dependencies=rows.filter(x=>x.kind==="debt"&&entries.some(p=>p.kind==="payment"&&p.debtId===x.id));
@@ -272,6 +300,19 @@ async function undoLatest(){
 }
 function enhancedBind(){
  $("undoLatest").addEventListener("click",undoLatest);
+ $("newVariableCategory").addEventListener("click",openVariableCategory);
+ $("variableCategoryForm").addEventListener("submit",saveVariableCategory);
+ $("closeVariableCategory").addEventListener("click",()=>$("variableCategoryDialog").close());
+ $("cancelVariableCategory").addEventListener("click",()=>$("variableCategoryDialog").close());
+ $("deleteVariableCategory").addEventListener("click",removeVariableCategory);
+ $("variableCategoryPicker").addEventListener("change",()=>{
+  const selected=$("variableCategoryPicker").value;
+  if(selected==="__new__"){openVariableCategory();return}
+  $("entryCategory").value=selected==="__choose__"?"":selected;
+  syncVariableCategoryPicker();
+ });
+ $("expenseClass").addEventListener("change",addOptions);
+
  $("openAllFixed").addEventListener("click",()=>{categoryKind="fixed";navigate("categories");render()});
  $("quickPayForm").addEventListener("submit",confirmQuickPay);
  $("closeQuickPay").addEventListener("click",()=>$("quickPayDialog").close());
@@ -283,7 +324,7 @@ function enhancedBind(){
   if(button.getAttribute("role")==="button")button.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();go()}});
  });
  $("categoryTabs").addEventListener("click",e=>{const b=e.target.closest("[data-category]");if(b){categoryKind=b.dataset.category;render()}});
- $("categoryAddBtn").addEventListener("click",()=>{if(categoryKind==="fixed")openFixed();else if(categoryKind==="receivable"||categoryKind==="payable"){openForm("debt");$("entryDirection").value=categoryKind;}else openForm(categoryKind==="income"?"income":"expense");if(categoryKind==="variable")$("expenseClass").value="variable"});
+ $("categoryAddBtn").addEventListener("click",()=>{if(categoryKind==="fixed")openFixed();else if(categoryKind==="receivable"||categoryKind==="payable"){openForm("debt");$("entryDirection").value=categoryKind;}else openForm(categoryKind==="income"?"income":"expense");if(categoryKind==="variable"){$("expenseClass").value="variable";addOptions()}});
  $("fixedForm").addEventListener("submit",saveFixed);
  $("closeFixedDialog").addEventListener("click",()=>$("fixedDialog").close());
  $("cancelFixed").addEventListener("click",()=>$("fixedDialog").close());
