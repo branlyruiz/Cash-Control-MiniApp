@@ -1,5 +1,5 @@
 :root{color-scheme:light;--bg:#f6f7f9;--ink:#172034;--muted:#8b94a3;--card:#fff;--line:#e9edf3;--accent:#202d47;--mint:#dbf5e9;--green:#189a68;--peach:#fff0e5;--red:#e1745c;--shadow:0 12px 32px rgba(25,42,70,.045)}
-*{box-sizing:border-box}html{font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}body{margin:0;background:var(--bg);color:var(--ink)}button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #86cbb4;outline-offset:2px}
+*{box-sizing:border-box}html{overflow-y:scroll;font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}body{margin:0;background:var(--bg);color:var(--ink)}button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #86cbb4;outline-offset:2px}
 .app{max-width:760px;margin:auto;min-height:100dvh;padding-bottom:118px}.top{padding:calc(22px + env(safe-area-inset-top)) 22px 22px;display:flex;align-items:center;justify-content:space-between}.brand{display:flex;align-items:center;gap:13px}.brand-mark{height:48px;width:48px;border-radius:15px;background:var(--ink);color:white;display:grid;place-items:center;font-weight:850;letter-spacing:-.08em;font-size:23px}.brand-kicker{font-size:10px;font-weight:800;letter-spacing:.22em;color:#8a91a0;margin:0 0 3px}.brand h1{font-size:23px;margin:0;letter-spacing:-.045em}.icon-button{height:43px;width:43px;border:1px solid var(--line);background:white;border-radius:15px;font-size:22px;color:#566178}.view{display:none;padding:6px 20px 24px}.view.active{display:block}.eyebrow{margin:0 0 6px;font-size:11px;font-weight:800;letter-spacing:.17em;color:#9da5b2}.period-row{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:0 1px 20px}.period-row h2,.page-heading h2{font-size:clamp(26px,5.2vw,32px);margin:0;font-weight:800;letter-spacing:-.05em}.period-controls{display:flex;gap:8px}.round-btn{width:35px;height:35px;border-radius:13px;border:1px solid var(--line);background:#fff;font-size:25px;line-height:0;color:var(--ink)}.round-btn:disabled{opacity:.32;cursor:not-allowed}
 .balance-card{border-radius:28px;background:#202c45;color:white;padding:23px 24px 22px;box-shadow:0 15px 34px rgba(25,37,64,.14)}.balance-top{display:flex;align-items:center;justify-content:space-between;gap:12px;color:#c3cbd8;font-size:13px}.month-chip{background:#ffffff1c;color:#dbe0e8;padding:7px 11px;border-radius:30px;font-size:11px;font-weight:750}.balance-value{font-size:clamp(34px,8vw,48px);font-weight:850;letter-spacing:-.06em;margin:22px 0 24px;overflow-wrap:anywhere}.account-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;padding-top:18px;border-top:1px solid #ffffff25}.account-grid div{min-width:0}.account-grid span{display:block;color:#a9b8ce;font-size:12px;margin-bottom:7px}.account-grid strong{font-size:18px;letter-spacing:-.035em;overflow-wrap:anywhere}
 .metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:13px}.metric{background:#fff;border:1px solid var(--line);border-radius:23px;padding:16px 17px 18px;min-width:0;box-shadow:var(--shadow)}.metric-icon{width:35px;height:35px;border-radius:12px;display:grid;place-items:center;margin-bottom:17px;font-size:19px;font-weight:700}.incoming{color:#11835b;background:#e1f7eb}.outgoing{color:#c77e43;background:#fff0e2}.metric>span{display:block;color:var(--muted);font-size:12px;margin-bottom:7px}.metric strong{font-size:clamp(19px,4.5vw,25px);letter-spacing:-.05em;overflow-wrap:anywhere}
@@ -50,15 +50,14 @@
 .app{padding-bottom:calc(128px + env(safe-area-inset-bottom))}
 .bottom-nav,.fab{display:none!important}
 .bottom-dock{position:fixed;z-index:40;bottom:calc(15px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:min(calc(100vw - 28px),690px);display:flex;align-items:center;gap:12px;filter:drop-shadow(0 12px 22px rgba(21,34,56,.10))}
-.dock-pill{min-width:0;flex:1;background:rgba(255,255,255,.91);border:1px solid rgba(230,233,240,.95);border-radius:999px;display:flex;align-items:center;gap:3px;padding:7px;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
-.dock-item{height:62px;min-width:44px;flex:1 1 0;border:0;border-radius:999px;color:#28344c;background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:7px 2px;transition:background .2s ease,box-shadow .2s ease}
-.dock-item.active{flex:0 0 auto;padding-left:14px;padding-right:14px;border-radius:20px;background:#fff;box-shadow:0 4px 18px rgba(25,43,72,.08)}
+.dock-pill{min-width:0;flex:1;background:rgba(255,255,255,.91);border:1px solid rgba(230,233,240,.95);border-radius:999px;display:grid;grid-template-columns:repeat(4,minmax(44px,1fr));align-items:center;gap:3px;padding:6px;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+.dock-item{width:100%;height:50px;min-width:44px;border:0;border-radius:999px;color:#28344c;background:transparent;display:grid;place-items:center;padding:0;transition:background .2s ease,box-shadow .2s ease}
+.dock-item.active{background:#fff;box-shadow:0 4px 18px rgba(25,43,72,.08)}
 .dock-icon{display:grid;place-items:center;flex:none}.dock-icon svg{width:23px;height:23px}
-.dock-label{display:block;flex:0 0 auto;font-size:10.5px;line-height:1.2;font-weight:650;white-space:nowrap;letter-spacing:-.015em}.dock-item.active .dock-label{display:block}
 .dock-fab{width:65px;height:65px;flex:0 0 65px;background:linear-gradient(145deg,#6358fa,#4c3deb);border:0;border-radius:50%;font-size:39px;line-height:1;color:#fff;font-weight:300;display:grid;place-items:center;box-shadow:0 12px 26px rgba(78,63,224,.28)}
 .dock-fab:active{transform:scale(.96)}
 .sheet-backdrop{position:fixed;inset:0;background:rgba(20,30,45,.29);z-index:42;backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
-.more-sheet{position:fixed;bottom:calc(108px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);z-index:43;width:min(calc(100% - 30px),500px);background:rgba(255,255,255,.97);border:1px solid #e9edf2;border-radius:29px;padding:15px;box-shadow:0 22px 60px rgba(22,33,52,.16);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+.more-sheet{position:fixed;bottom:calc(94px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);z-index:43;width:min(calc(100% - 30px),500px);background:rgba(255,255,255,.97);border:1px solid #e9edf2;border-radius:29px;padding:15px;box-shadow:0 22px 60px rgba(22,33,52,.16);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
 .sheet-handle{width:42px;height:5px;border-radius:99px;background:#d9dfe7;margin:0 auto 15px}
 .more-sheet h3{font-size:18px;margin:0 6px 15px;letter-spacing:-.03em}
 .sheet-item{display:flex;width:100%;align-items:center;text-align:left;gap:13px;padding:13px;border-radius:17px;border:1px solid #edf0f4;background:#fff;color:#26344a;margin-bottom:8px}
@@ -66,7 +65,7 @@
 .sheet-copy{display:flex;flex:1;flex-direction:column;gap:5px;min-width:0}.sheet-copy strong{font-size:14px}.sheet-copy small{font-size:11px;color:#8e99aa}
 .sheet-chevron{color:#9eabba;font-size:25px}
 .sheet-close{display:block;margin:12px auto 0;border:0;background:transparent;padding:8px 20px;color:#617086;font-size:13px;font-weight:750}
-@media(max-width:390px){.bottom-dock{width:calc(100vw - 20px);gap:8px}.dock-pill{padding:5px}.dock-item{height:58px;padding:6px 2px;gap:5px}.dock-icon svg{width:20px;height:20px}.dock-item.active{flex:0 0 auto;padding-left:12px;padding-right:12px;border-radius:18px}.dock-label{font-size:10px}.dock-fab{width:60px;height:60px;flex-basis:60px;font-size:36px}.more-sheet{bottom:calc(100px + env(safe-area-inset-bottom))}}
+@media(max-width:390px){.bottom-dock{width:calc(100vw - 20px);gap:8px}.dock-pill{padding:5px}.dock-item{height:48px}.dock-icon svg{width:20px;height:20px}.dock-fab{width:60px;height:60px;flex-basis:60px;font-size:36px}.more-sheet{bottom:calc(90px + env(safe-area-inset-bottom))}}
 
 /* Inicio interactivo: pagos prioritarios y tarjetas navegables */
 .metric-button{display:flex;flex-direction:column;align-items:flex-start;text-align:left;width:100%;cursor:pointer;color:var(--ink)}
@@ -335,14 +334,5 @@
  .payment-footer{padding-left:18px;padding-right:18px}
 }
 
-/* V15 · La opción activa reserva espacio para su etiqueta y márgenes interiores. */
-.dock-label-short,.dock-category-short{display:none}
-@media(max-width:420px){
- .dock-label-full{display:none}
- .dock-label-short{display:inline}
-}
-@media(max-width:350px){
- .dock-category-full{display:none}
- .dock-category-short{display:inline}
-}
+/* V15.2 · Cuatro posiciones fijas; la selección solo cambia el resaltado. */
 @media(prefers-reduced-motion:reduce){.dock-item{transition:none}}

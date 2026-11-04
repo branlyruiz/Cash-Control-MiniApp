@@ -19,12 +19,12 @@ En iPhone: abrir el enlace con Safari → Compartir → Añadir a pantalla de in
 - No hay registros precargados, importación histórica automática ni conexión con la antigua base SQLite.
 - Las categorías se crean al añadir movimientos.
 
-## Actualización V15
+## Actualización V15.2
 
-- Menú flotante inspirado en la referencia de WhatsApp: icono arriba, etiqueta debajo, opciones equilibradas y sección activa resaltada.
-- La burbuja activa se adapta al contenido con 12–14 px de margen horizontal y esquinas suaves, sin ajustar el borde al texto.
-- Etiquetas adaptadas a pantallas estrechas para conservar espacio dentro de las burbujas. Los nombres accesibles siguen siendo completos.
-- Separación ajustada entre el menú flotante y el panel Más.
+- Menú flotante solo con iconos, cuatro espacios del mismo ancho y posiciones fijas.
+- Seleccionar una sección cambia únicamente el resaltado; no cambia el ancho ni el espaciado de los controles.
+- Los botones conservan los nombres accesibles Inicio, Movimientos, Categorías y Más secciones.
+- Se evita el salto horizontal al pasar entre pantallas con distinta altura de contenido. Se conserva la separación con el panel Más.
 
 ## Actualización V14
 
