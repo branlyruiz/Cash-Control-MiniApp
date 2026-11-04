@@ -26,6 +26,7 @@ En iPhone: abrir el enlace con Safari → Compartir → Añadir a pantalla de in
 - La misma presentación se aplica a las categorías de deuda y a la sección Deudas. Cada registro conserva su identidad aunque comparta el concepto con otra deuda.
 - Las deudas pagadas se retiran de pendientes y quedan disponibles en Deudas saldadas. Los abonos se pueden corregir desde Movimientos.
 - Se conservan los datos y cálculos de V13, el formato de respaldo y la base local.
+- Se elimina de Inicio la sección redundante Distribución de gastos.
 
 ## Actualización V13
 
