@@ -11,9 +11,9 @@
 <link rel="manifest" href="./manifest.webmanifest"/>
 <link rel="icon" href="./icon.svg?v=10" type="image/svg+xml"/>
 <link rel="apple-touch-icon" href="./icon-180.png?v=10"/>
-<link rel="stylesheet" href="./styles.css?v=15.2"/>
+<link rel="stylesheet" href="./styles.css?v=16"/>
 <title>Cash Control · BRANLY RUIZ</title>
-<script defer src="./app.js?v=15.2"></script>
+<script defer src="./app.js?v=16"></script>
 </head>
 <body>
 <div class="app">
@@ -55,9 +55,13 @@
  <details class="settled-debts hidden" id="settledDebts"><summary>Deudas saldadas <span id="settledDebtCount">0</span></summary><section class="panel debt-receivables" id="settledDebtList" aria-label="Deudas saldadas"></section></details>
 </section>
 <section id="categoriesView" class="view">
-  <div class="page-heading"><p class="eyebrow">GESTIÓN POR CONCEPTOS</p><h2>Categorías</h2><p>Ingresos, gastos variables, gastos fijos y deudas. Toca un concepto para editar sus registros.</p></div>
-  <div class="category-tabs" id="categoryTabs">
-    <button class="category-tab active" data-category="income">Ingresos</button><button class="category-tab" data-category="variable">Gastos variables</button><button class="category-tab" data-category="fixed">Gastos fijos</button><button class="category-tab" data-category="receivable">Deudas a favor</button><button class="category-tab" data-category="payable">Deudas en contra</button>
+  <div class="page-heading"><p class="eyebrow">GESTIÓN POR CONCEPTOS</p><h2>Categorías</h2></div>
+  <div class="category-tabs" id="categoryTabs" role="group" aria-label="Tipo de categoría">
+    <button type="button" class="category-tab active" data-category="income" aria-label="Ingresos" aria-pressed="true"><span class="category-label">Ingresos</span><span class="category-check" aria-hidden="true">✓</span></button>
+    <button type="button" class="category-tab" data-category="variable" aria-label="Gastos variables" aria-pressed="false"><span class="category-label">Variables</span><span class="category-check" aria-hidden="true">✓</span></button>
+    <button type="button" class="category-tab" data-category="fixed" aria-label="Gastos fijos" aria-pressed="false"><span class="category-label">Fijos</span><span class="category-check" aria-hidden="true">✓</span></button>
+    <button type="button" class="category-tab" data-category="receivable" aria-label="Deudas a favor" aria-pressed="false"><span class="category-label">Deudas a favor</span><span class="category-check" aria-hidden="true">✓</span></button>
+    <button type="button" class="category-tab" data-category="payable" aria-label="Deudas en contra" aria-pressed="false"><span class="category-label">Deudas en contra</span><span class="category-check" aria-hidden="true">✓</span></button>
   </div>
   <div class="metric-grid" id="categoryMetrics"><article class="metric"><span id="categoryMetricLabel">Total del mes</span><strong id="categoryMetricTotal">$ 0</strong></article><article class="metric"><span>Conceptos</span><strong id="categoryMetricCount">0</strong></article></div>
   <div class="section-title" id="categoryListCaption"><h3 id="categoryListTitle">Valores por concepto</h3><div class="section-actions"><strong class="hidden" id="debtCategoryTotal">$ 0</strong><button type="button" class="text-button hidden" id="newVariableCategory">+ Categoría</button><button type="button" class="text-button" id="categoryAddBtn">+ Movimiento</button></div></div>

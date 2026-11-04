@@ -317,7 +317,7 @@ function enhancedRender(s){
  const items=categoryItems(categoryKind),total=items.reduce((a,x)=>a+x.amount,0),max=Math.max(1,...items.map(x=>x.amount));
  $("categoryMetricLabel").textContent=categoryKind==="fixed"?"Total pagado":categoryKind==="payable"||categoryKind==="receivable"?"Saldo pendiente":"Total del mes";
  $("categoryMetricTotal").textContent=money(total);$("categoryMetricCount").textContent=String(items.length);
- $("categoryTabs").querySelectorAll("button").forEach(b=>b.classList.toggle("active",b.dataset.category===categoryKind));
+ $("categoryTabs").querySelectorAll("button").forEach(b=>{const selected=b.dataset.category===categoryKind;b.classList.toggle("active",selected);b.setAttribute("aria-pressed",String(selected))});
  const isDebtCategory=categoryKind==="payable"||categoryKind==="receivable";
  $("categoryMetrics").classList.toggle("hidden",isDebtCategory);
  $("categoryListCaption").classList.toggle("is-debt-caption",isDebtCategory);

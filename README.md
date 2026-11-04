@@ -19,6 +19,14 @@ En iPhone: abrir el enlace con Safari → Compartir → Añadir a pantalla de in
 - No hay registros precargados, importación histórica automática ni conexión con la antigua base SQLite.
 - Las categorías se crean al añadir movimientos.
 
+## Actualización V16
+
+- Selector de categorías en dos filas: Ingresos, Variables y Fijos; Deudas a favor y Deudas en contra.
+- Las cinco opciones permanecen visibles, sin desplazamiento horizontal. Las deudas tienen cuadros más anchos para mostrar el nombre completo.
+- Cuadros de al menos 50 px de alto, separados por 8 px, con dimensiones estables al seleccionar.
+- Selección con contraste, marca visual y estado accesible; se conservan los nombres completos para lectores de pantalla.
+- Se retira el párrafo introductorio redundante de Categorías. El menú flotante y los cálculos se conservan.
+
 ## Actualización V15.2
 
 - Menú flotante solo con iconos, cuatro espacios del mismo ancho y posiciones fijas.
