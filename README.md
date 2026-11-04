@@ -19,6 +19,14 @@ En iPhone: abrir el enlace con Safari → Compartir → Añadir a pantalla de in
 - No hay registros precargados, importación histórica automática ni conexión con la antigua base SQLite.
 - Las categorías se crean al añadir movimientos.
 
+## Actualización V14
+
+- Deudas a favor y en contra usan filas compactas como Por cobrar de Kuumi: inicial, concepto, nota, saldo pendiente y botón **+** para abonar directamente.
+- El formulario de abono ya conoce la deuda: importe, fecha, cuenta y nota opcional. **Pagar saldo completo** rellena el importe restante; el pie muestra el saldo después del abono.
+- La misma presentación se aplica a las categorías de deuda y a la sección Deudas. Cada registro conserva su identidad aunque comparta el concepto con otra deuda.
+- Las deudas pagadas se retiran de pendientes y quedan disponibles en Deudas saldadas. Los abonos se pueden corregir desde Movimientos.
+- Se conservan los datos y cálculos de V13, el formato de respaldo y la base local.
+
 ## Actualización V13
 
 - Formulario con tres opciones principales: **Ingreso, Gasto y Deuda**. En Gasto se elige fijo o variable; en Deuda se elige a favor o en contra y se registra una nueva deuda, un abono o el pago total.

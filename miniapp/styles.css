@@ -278,3 +278,59 @@
  #categoriesView .concept-card-heading{grid-template-columns:minmax(0,1fr) auto 10px;gap:6px;font-size:13px}
  #categoriesView .concept-card-heading b{font-size:14px}
 }
+
+/* V14 · Saldos como Kuumi: identidad, pendiente y abono directo. */
+.debt-page-heading{display:flex;align-items:center;justify-content:space-between;gap:14px}
+.debt-page-heading .text-button{min-height:44px;flex-shrink:0}
+.debt-list-caption,.section-title.is-debt-caption{display:flex;justify-content:space-between;align-items:center;gap:14px;margin:22px 2px 12px;font-size:14px}
+.debt-list-caption h3,.section-title.is-debt-caption h3{margin:0;font-size:14px;font-weight:650}
+.debt-list-caption>strong,#debtCategoryTotal{font-size:18px;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.debt-receivables{padding:4px 14px;border-radius:18px;box-shadow:none}
+.debt-receivable-row{display:grid;grid-template-columns:34px minmax(0,1fr) auto 44px;align-items:center;gap:10px;min-height:86px;padding:15px 0;border-bottom:1px solid var(--line)}
+.debt-receivable-row:last-child{border-bottom:0}
+.debt-avatar{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:#e7f3ec;color:#367b58;font-size:13px;font-weight:650}
+.debt-tone-payable .debt-avatar{background:#fff0e7;color:#b47442}
+.debt-identity{display:flex;flex-direction:column;justify-content:center;gap:5px;min-width:0;min-height:44px;text-align:left;border:0;background:transparent;padding:0;color:var(--ink)}
+.debt-identity strong{font-size:14px;font-weight:650;line-height:1.4;overflow-wrap:anywhere}
+.debt-identity>span{font-size:12px;color:#8994a4;line-height:1.4;overflow-wrap:anywhere}
+.debt-row-amount{font-size:15px;letter-spacing:-.03em;font-variant-numeric:tabular-nums;white-space:nowrap}
+.debt-pay-add{width:44px;height:44px;border:1px solid #cee4d9;background:#edf6f1;color:#388566;border-radius:13px;display:grid;place-items:center;padding:0}
+.debt-tone-payable .debt-pay-add{border-color:#eedac9;background:#fcf3ec;color:#ad7148}
+.debt-pay-add:hover{filter:brightness(.97)}
+.debt-pay-add:disabled{opacity:.4;cursor:default}
+.debt-paid-mark{justify-self:center;color:#4c9672;font-size:20px}
+.settled-debts{margin-top:26px}
+.settled-debts>summary{min-height:44px;cursor:pointer;color:#788596;font-size:13px;font-weight:650;padding:12px 2px}
+.settled-debts>summary span{margin-left:8px;font-variant-numeric:tabular-nums}
+.debt-delete-link{color:#b85d50;font-size:12px;min-height:44px;padding:10px 0}
+.debt-payment-sheet{--payment-bg:#eef7f2;--payment-line:#d4e6dc;--payment-ink:#28694e;width:min(94vw,460px)}
+.debt-payment-sheet.is-payable{--payment-bg:#fcf2ea;--payment-line:#ecdbca;--payment-ink:#98613f}
+.debt-payment-sheet .dialog-head{padding:21px 22px 17px;gap:14px;align-items:flex-start}
+.debt-payment-sheet .dialog-head>div{min-width:0}
+.debt-payment-sheet .dialog-head h2{font-size:23px;overflow-wrap:anywhere;line-height:1.25}
+.debt-payment-sheet .close{flex-shrink:0}
+.payment-subtitle{font-size:12px;color:#8a95a4;line-height:1.5;margin:7px 0 0;overflow-wrap:anywhere}
+.debt-payment-sheet .form-content{padding:20px 22px 15px}
+.debt-payment-sheet .payment-balance{display:flex;flex-direction:column;gap:7px;border-radius:14px;background:var(--payment-bg);color:var(--payment-ink);padding:17px;margin-bottom:22px}
+.payment-balance>span{font-size:12px}
+.payment-balance>strong{font-size:29px;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+.debt-payment-sheet .payment-amount{font-size:13px;margin-bottom:0}
+.debt-payment-sheet .payment-amount input{height:58px;font-size:29px;border-color:var(--payment-line);background:#fff;letter-spacing:-.03em}
+.debt-payment-sheet .payment-full{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:44px;padding:10px 0;margin:2px 0 14px;color:var(--payment-ink);font-size:13px;font-weight:650;text-align:left}
+.payment-effect{font-size:12px;line-height:1.5;color:#84909f;margin:0 0 8px}
+.payment-footer{align-items:center;padding:16px 22px calc(17px + env(safe-area-inset-bottom))}
+.payment-footer>div{display:flex;flex:1;flex-direction:column;gap:5px;min-width:0}
+.payment-footer>div>span{font-size:11px;color:#8a95a4}
+.payment-footer>div>strong{font-size:19px;letter-spacing:-.03em;overflow-wrap:anywhere}
+.payment-footer button{flex:0 0 auto;min-height:46px;font-size:13px;padding:13px 16px}
+.payment-footer button:disabled{opacity:.55;cursor:wait}
+@media(max-width:360px){
+ .debt-receivables{padding-left:12px;padding-right:12px}
+ .debt-receivable-row{grid-template-columns:30px minmax(0,1fr) 44px;column-gap:9px;row-gap:3px;min-height:88px}
+ .debt-avatar{width:30px;height:30px;grid-row:1 / span 2;align-self:center}
+ .debt-identity{grid-column:2;min-height:0}
+ .debt-row-amount{grid-column:2;grid-row:2;font-size:14px}
+ .debt-pay-add,.debt-paid-mark{grid-column:3;grid-row:1 / span 2}
+ .debt-payment-sheet .dialog-head,.debt-payment-sheet .form-content{padding-left:18px;padding-right:18px}
+ .payment-footer{padding-left:18px;padding-right:18px}
+}

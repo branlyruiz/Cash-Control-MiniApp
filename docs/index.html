@@ -11,9 +11,9 @@
 <link rel="manifest" href="./manifest.webmanifest"/>
 <link rel="icon" href="./icon.svg?v=10" type="image/svg+xml"/>
 <link rel="apple-touch-icon" href="./icon-180.png?v=10"/>
-<link rel="stylesheet" href="./styles.css?v=13"/>
+<link rel="stylesheet" href="./styles.css?v=14"/>
 <title>Cash Control · BRANLY RUIZ</title>
-<script defer src="./app.js?v=13"></script>
+<script defer src="./app.js?v=14"></script>
 </head>
 <body>
 <div class="app">
@@ -48,18 +48,20 @@
  <section class="panel activity" id="allTransactions"></section>
 </section>
 <section id="debtsView" class="view">
- <div class="page-heading"><p class="eyebrow">SALDOS PENDIENTES</p><h2>Deudas</h2><p>Registra lo que debes y lo que te deben. Crear una deuda no mueve dinero.</p></div>
- <div class="metric-grid"><article class="metric"><div class="metric-icon incoming">+</div><span>Por cobrar</span><strong id="receivableTotal">$ 0</strong></article><article class="metric"><div class="metric-icon outgoing">−</div><span>Por pagar</span><strong id="payableTotal">$ 0</strong></article></div>
- <div class="section-title"><h3>Deudas registradas</h3><button class="text-button" id="newDebtBtn">+ Nueva</button></div>
- <section class="panel activity" id="debtList"></section>
+ <div class="page-heading debt-page-heading"><div><p class="eyebrow">SALDOS PENDIENTES</p><h2>Deudas</h2></div><button class="text-button" id="newDebtBtn">+ Nueva deuda</button></div>
+ <div class="debt-list-caption"><h3>A favor · Por cobrar</h3><strong id="receivableTotal">$ 0</strong></div>
+ <section class="panel debt-receivables" id="receivableList" aria-label="Deudas a favor pendientes"></section>
+ <div class="debt-list-caption"><h3>En contra · Por pagar</h3><strong id="payableTotal">$ 0</strong></div>
+ <section class="panel debt-receivables" id="payableList" aria-label="Deudas en contra pendientes"></section>
+ <details class="settled-debts hidden" id="settledDebts"><summary>Deudas saldadas <span id="settledDebtCount">0</span></summary><section class="panel debt-receivables" id="settledDebtList" aria-label="Deudas saldadas"></section></details>
 </section>
 <section id="categoriesView" class="view">
   <div class="page-heading"><p class="eyebrow">GESTIÓN POR CONCEPTOS</p><h2>Categorías</h2><p>Ingresos, gastos variables, gastos fijos y deudas. Toca un concepto para editar sus registros.</p></div>
   <div class="category-tabs" id="categoryTabs">
     <button class="category-tab active" data-category="income">Ingresos</button><button class="category-tab" data-category="variable">Gastos variables</button><button class="category-tab" data-category="fixed">Gastos fijos</button><button class="category-tab" data-category="receivable">Deudas a favor</button><button class="category-tab" data-category="payable">Deudas en contra</button>
   </div>
-  <div class="metric-grid"><article class="metric"><span id="categoryMetricLabel">Total del mes</span><strong id="categoryMetricTotal">$ 0</strong></article><article class="metric"><span>Conceptos</span><strong id="categoryMetricCount">0</strong></article></div>
-  <div class="section-title"><h3>Valores por concepto</h3><div class="section-actions"><button type="button" class="text-button hidden" id="newVariableCategory">+ Categoría</button><button type="button" class="text-button" id="categoryAddBtn">+ Movimiento</button></div></div>
+  <div class="metric-grid" id="categoryMetrics"><article class="metric"><span id="categoryMetricLabel">Total del mes</span><strong id="categoryMetricTotal">$ 0</strong></article><article class="metric"><span>Conceptos</span><strong id="categoryMetricCount">0</strong></article></div>
+  <div class="section-title" id="categoryListCaption"><h3 id="categoryListTitle">Valores por concepto</h3><div class="section-actions"><strong class="hidden" id="debtCategoryTotal">$ 0</strong><button type="button" class="text-button hidden" id="newVariableCategory">+ Categoría</button><button type="button" class="text-button" id="categoryAddBtn">+ Movimiento</button></div></div>
   <section class="panel concept-list" id="categoryRows" aria-label="Conceptos y valores"></section>
 </section>
 <section id="balanceView" class="view">
@@ -115,6 +117,7 @@
 <label class="field">¿Qué deseas hacer?<select id="debtAction"><option value="payment">Abonar</option><option value="settle">Pagado total</option><option value="new">Registrar nueva deuda</option></select></label>
 <label class="field" id="debtField">Deuda<select name="debtId" id="entryDebt"><option value="">Selecciona una deuda</option></select></label>
 <p id="debtPaymentHint" class="debt-payment-hint" role="status" aria-live="polite"></p>
+<button type="button" id="deleteEditingDebt" class="text-button debt-delete-link hidden">Eliminar deuda</button>
 </section>
 <div class="amount-panel" id="amountPanel"><label class="field amount-field" for="entryAmount"><span id="amountLabel">VALOR DEL MOVIMIENTO · COP</span><div class="amount-input-wrap"><span class="money-prefix">$</span><input name="amount" id="entryAmount" type="number" inputmode="numeric" min="1" step="1" placeholder="0" required/></div></label></div>
 <div class="sheet-section sheet-details"><div class="section-label">DETALLES DEL MOVIMIENTO</div>
@@ -127,6 +130,18 @@
 <p class="validation" id="formError" role="alert" aria-live="polite"></p></div>
 </div>
 <footer class="dialog-actions movement-actions"><button type="button" class="cancel-btn" id="cancelEntry">Cancelar</button><button type="submit" class="save-btn" id="saveEntry">Guardar movimiento</button></footer>
+</form></dialog>
+<dialog id="debtPaymentDialog" class="entry-dialog debt-payment-sheet" aria-labelledby="debtPaymentTitle"><form id="debtPaymentForm" novalidate>
+<header class="dialog-head"><div><p class="eyebrow" id="debtPaymentEyebrow">REGISTRAR ABONO</p><h2 id="debtPaymentTitle">Deuda</h2><p class="payment-subtitle" id="debtPaymentSubtitle"></p></div><button type="button" class="close" id="closeDebtPayment" aria-label="Cerrar abono">×</button></header>
+<div class="form-content">
+ <div class="payment-balance"><span>Saldo pendiente</span><strong id="debtPaymentBalance">$ 0</strong></div>
+ <label class="field payment-amount" for="debtPaymentAmount">Valor del abono · COP<input id="debtPaymentAmount" type="number" inputmode="numeric" min="1" step="1" placeholder="0" required aria-describedby="debtPaymentError"/></label>
+ <button class="text-button payment-full" id="fillDebtPayment" type="button">Pagar saldo completo <span aria-hidden="true">↗</span></button>
+ <div class="form-grid"><label class="field">Fecha del abono<input id="debtPaymentDate" type="date" min="2026-11-01" required/></label><label class="field">Cuenta<select id="debtPaymentAccount"><option value="digital">Digital</option><option value="cash">Efectivo</option></select></label></div>
+ <label class="field">Nota (opcional)<input id="debtPaymentNote" maxlength="180" placeholder="¿Qué deseas recordar?"/></label>
+ <p class="payment-effect" id="debtPaymentEffect"></p><p class="validation" id="debtPaymentError" role="alert" aria-live="polite"></p>
+</div>
+<footer class="dialog-actions payment-footer"><div><span>Saldo después</span><strong id="debtPaymentAfter">$ 0</strong></div><button class="save-btn" id="saveDebtPayment" type="submit">Guardar abono</button></footer>
 </form></dialog>
 <dialog id="quickPayDialog" class="entry-dialog"><form id="quickPayForm" novalidate>
 <header class="dialog-head"><div><p class="eyebrow">GASTO FIJO</p><h2>Confirmar pago</h2></div><button type="button" class="close" id="closeQuickPay" aria-label="Cerrar">×</button></header>

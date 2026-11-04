@@ -8,7 +8,7 @@ const monthText=s=>new Intl.DateTimeFormat("es-CO",{month:"long",year:"numeric",
 const nowBogota=()=>{const parts=new Intl.DateTimeFormat("en-US",{timeZone:"America/Bogota",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date());const part=type=>parts.find(x=>x.type===type)?.value||"";return `${part("year")}-${part("month")}-${part("day")}`};
 const safe=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const uid=()=>typeof crypto!=="undefined"&&crypto.randomUUID?crypto.randomUUID():"br-"+Date.now()+"-"+Math.random().toString(36).slice(2);
-let db,entries=[],view="dashboard",month=FIRST_MONTH,editing=null,toastTimer=null,selectedDebt=null,formSubmitting=false;
+let db,entries=[],view="dashboard",month=FIRST_MONTH,editing=null,toastTimer=null,selectedDebt=null,formSubmitting=false,debtPaymentState=null,debtPaymentSaving=false,debtPaymentInitial="";
 const kinds={income:"Ingreso",expense:"Gasto",transfer:"Transferencia",debt:"Deuda",payment:"Abono"};
 const accountNames={digital:"Digital",cash:"Efectivo"};
 
@@ -55,12 +55,77 @@ const groupEntries=Object.entries(s.groups).sort((a,b)=>b[1]-a[1]);$("expenseCou
 $("categorySummary").innerHTML=groupEntries.length?groupEntries.map(([name,value])=>'<div class="category-line"><div class="category-row"><span>'+safe(name)+'</span><strong>'+money(value)+'</strong></div><div class="bar-track"><div class="bar-fill" style="width:'+Math.min(100,100*value/Math.max(1,s.expenses))+'%"></div></div></div>').join(""):empty("Registra tu primer gasto para ver las categorías.");
 const activity=s.monthly.filter(isMoney);$("recentTransactions").innerHTML=activity.length?activity.slice(0,5).map(x=>entryHtml(x,false)).join(""):empty("Aún no tienes movimientos en "+monthText(month)+".");
 const filter=$("filterKind").value;const selected=activity.filter(x=>filter==="all"||x.kind===filter||(x.kind==="expense"&&x.expenseClass===filter));$("allTransactions").innerHTML=selected.length?selected.map(x=>entryHtml(x)).join(""):empty("No hay movimientos para este filtro en "+monthText(month)+".");
-const historicalDebts=entries.filter(x=>x.kind==="debt"&&x.date<=s.until),active=historicalDebts.map(d=>({entry:d,remaining:debtBalance(d,s.until)}));
-$("receivableTotal").textContent=money(active.filter(x=>x.entry.direction==="receivable").reduce((sum,x)=>sum+x.remaining,0));
-$("payableTotal").textContent=money(active.filter(x=>x.entry.direction==="payable").reduce((sum,x)=>sum+x.remaining,0));
- $("payableHome").textContent=$("payableTotal").textContent;
-$("debtList").innerHTML=active.length?active.map(({entry:d,remaining})=>'<div class="debt-row"><div class="debt-head"><strong>'+safe(d.category)+'</strong><strong>'+money(remaining)+'</strong></div><span class="debt-label">'+(d.direction==="receivable"?"Por cobrar":"Por pagar")+' · Inicial '+money(d.amount)+' · '+niceDate(d.date)+'</span><div class="debt-bottom"><span class="pill">'+(remaining?"Pendiente":"Saldada")+'</span><button class="mini-btn" data-edit="'+safe(d.id)+'">Editar</button><button class="mini-btn" data-delete="'+safe(d.id)+'">Eliminar</button><button class="debt-btn" data-pay="'+safe(d.id)+'" '+(remaining<=0?"disabled":"")+'>Registrar abono</button></div></div>').join(""):empty("Sin deudas. Puedes registrar una desde el botón Nueva.");
+renderDebtLists(s.until);
+$("payableHome").textContent=$("payableTotal").textContent;
  enhancedRender(s);
+}
+function debtRows(direction,until=month+"-31",settled=false){
+ return entries.filter(d=>d.kind==="debt"&&(!direction||d.direction===direction)&&d.date<=until)
+  .map(d=>({entry:d,remaining:debtBalance(d,until)})).filter(x=>settled?x.remaining===0:x.remaining>0)
+  .sort((a,b)=>b.remaining-a.remaining||a.entry.category.localeCompare(b.entry.category,"es-CO")||a.entry.id.localeCompare(b.entry.id));
+}
+function debtRowHtml({entry:d,remaining}){
+ const initial=Array.from((d.category||"D").trim())[0]||"D",canPay=d.amount-pendingDebtPayments(d.id)>0;
+ return '<article class="debt-receivable-row debt-tone-'+safe(d.direction)+'"><span class="debt-avatar" aria-hidden="true">'+safe(initial.toUpperCase())+'</span><button type="button" class="debt-identity" data-edit="'+safe(d.id)+'" aria-label="Editar deuda '+safe(d.category)+'"><strong>'+safe(d.category)+'</strong><span>'+safe(d.description||"Desde "+niceDate(d.date))+'</span></button><strong class="debt-row-amount">'+money(remaining)+'</strong>'+(remaining>0?'<button type="button" class="debt-pay-add" data-pay="'+safe(d.id)+'" aria-label="Registrar abono de '+safe(d.category)+'" '+(!canPay?'disabled title="Esta deuda ya tiene su saldo cubierto en otro período"':"")+'><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>':'<span class="debt-paid-mark" aria-label="Saldada">✓</span>')+'</article>';
+}
+function renderDebtLists(until){
+ for(const [direction,listId,totalId] of [["receivable","receivableList","receivableTotal"],["payable","payableList","payableTotal"]]){
+  const rows=debtRows(direction,until);
+  $(totalId).textContent=money(rows.reduce((sum,x)=>sum+x.remaining,0));
+  $(listId).innerHTML=rows.length?rows.map(debtRowHtml).join(""):empty(direction==="receivable"?"No tienes deudas por cobrar.":"No tienes deudas por pagar.");
+ }
+ const settled=debtRows(null,until,true);
+ $("settledDebts").classList.toggle("hidden",!settled.length);
+ $("settledDebtCount").textContent=String(settled.length);
+ $("settledDebtList").innerHTML=settled.map(debtRowHtml).join("");
+}
+function debtPaymentRemaining(){
+ const d=entries.find(x=>x.kind==="debt"&&x.id===debtPaymentState?.debtId);
+ return d?Math.max(0,d.amount-pendingDebtPayments(d.id,debtPaymentState.original?.id)):0;
+}
+function debtPaymentDraft(){return JSON.stringify([$("debtPaymentAmount").value,$("debtPaymentDate").value,$("debtPaymentAccount").value,$("debtPaymentNote").value])}
+function syncDirectPayment(){
+ if(!debtPaymentState)return;
+ const d=entries.find(x=>x.id===debtPaymentState.debtId),remaining=debtPaymentRemaining(),amount=Number($("debtPaymentAmount").value)||0;
+ $("debtPaymentBalance").textContent=money(remaining);$("debtPaymentAmount").max=String(remaining);
+ $("debtPaymentAfter").textContent=money(Math.max(0,remaining-amount));
+ $("debtPaymentAfter").classList.toggle("negative",amount>remaining);
+ const destination=$("debtPaymentAccount").value==="cash"?"tu efectivo":"tu cuenta digital";
+ $("debtPaymentEffect").textContent=(d?.direction==="payable"?"El abono se descontará de ":"El abono se sumará a ")+destination+".";
+}
+function openDebtPayment(id,original=null,full=false){
+ const d=entries.find(x=>x.kind==="debt"&&x.id===id);if(!d)return;
+ const remaining=d.amount-pendingDebtPayments(id,original?.id);
+ if(remaining<=0){showToast("Esta deuda ya está saldada.");return}
+ if($("entryDialog").open)closeEntry();$("conceptDialog").close();
+ debtPaymentState={debtId:id,original};$("debtPaymentForm").reset();
+ $("debtPaymentDialog").classList.toggle("is-payable",d.direction==="payable");
+ $("debtPaymentTitle").textContent=d.category;$("debtPaymentSubtitle").textContent=d.description|| (d.direction==="payable"?"Deuda en contra · Por pagar":"Deuda a favor · Por cobrar");
+ $("debtPaymentEyebrow").textContent=original?"EDITAR ABONO":"REGISTRAR ABONO";
+ $("debtPaymentAmount").value=original?.amount||"";$("debtPaymentDate").value=original?.date||(nowBogota()<START?START:nowBogota());
+ $("debtPaymentAccount").value=original?.account||"digital";$("debtPaymentNote").value=original?.description||"";
+ $("debtPaymentError").textContent="";$("saveDebtPayment").disabled=false;
+ $("saveDebtPayment").textContent=original?"Guardar cambios":"Guardar abono";
+ debtPaymentInitial=debtPaymentDraft();if(full)$("debtPaymentAmount").value=String(remaining);
+ syncDirectPayment();$("debtPaymentDialog").showModal();$("debtPaymentAmount").focus({preventScroll:true});
+}
+function closeDebtPayment(force=false){
+ if(!force&&(debtPaymentSaving||debtPaymentDraft()!==debtPaymentInitial&&!confirm("¿Salir sin guardar el abono?")))return;
+ if($("debtPaymentDialog").contains(document.activeElement))document.activeElement.blur();
+ $("debtPaymentDialog").close();debtPaymentState=null;
+}
+async function saveDebtPayment(event){
+ event.preventDefault();if(debtPaymentSaving||!debtPaymentState)return;
+ const original=debtPaymentState.original,x={id:original?.id||uid(),created:original?.created||new Date().toISOString(),kind:"payment",amount:Number($("debtPaymentAmount").value),date:$("debtPaymentDate").value,account:$("debtPaymentAccount").value,category:"",description:$("debtPaymentNote").value.trim(),expenseClass:null,direction:null,target:null,debtId:debtPaymentState.debtId};
+ const error=validEntry(x,original);$("debtPaymentError").textContent=error;
+ if(error){$("debtPaymentAmount").focus({preventScroll:true});return}
+ debtPaymentSaving=true;$("saveDebtPayment").disabled=true;
+ try{
+  await transaction("readwrite",store=>store.put(x));closeDebtPayment(true);await refresh();
+  const d=entries.find(d=>d.id===x.debtId);
+  showToast(d&&debtBalance(d)===0?"Deuda saldada. Disponible actualizado.":original?"Abono actualizado.":"Abono registrado. Disponible actualizado.");
+ }catch(err){$("debtPaymentError").textContent="No se pudo guardar: "+err.message}
+ finally{debtPaymentSaving=false;$("saveDebtPayment").disabled=false}
 }
 function openMoreSheet(){
  $("moreSheet").classList.remove("hidden");
@@ -141,6 +206,7 @@ function adjustForm(){
  $("debtControls").classList.toggle("hidden",!debtMode);
  $("debtField").classList.toggle("hidden",kind!=="payment");
  $("debtAction").disabled=editing?.kind==="debt";
+ $("deleteEditingDebt").classList.toggle("hidden",editing?.kind!=="debt");
  $("accountField").classList.toggle("hidden",kind==="debt");
  if(kind==="payment")populateDebtOptions(editing?.kind==="payment"?editing.id:null);
  addOptions();syncDebtPayment();
@@ -254,12 +320,24 @@ function enhancedRender(s){
  $("categoryMetricLabel").textContent=categoryKind==="fixed"?"Total pagado":categoryKind==="payable"||categoryKind==="receivable"?"Saldo pendiente":"Total del mes";
  $("categoryMetricTotal").textContent=money(total);$("categoryMetricCount").textContent=String(items.length);
  $("categoryTabs").querySelectorAll("button").forEach(b=>b.classList.toggle("active",b.dataset.category===categoryKind));
+ const isDebtCategory=categoryKind==="payable"||categoryKind==="receivable";
+ $("categoryMetrics").classList.toggle("hidden",isDebtCategory);
+ $("categoryListCaption").classList.toggle("is-debt-caption",isDebtCategory);
+ $("categoryListTitle").textContent=isDebtCategory?"Saldo pendiente":"Valores por concepto";
+ $("debtCategoryTotal").classList.toggle("hidden",!isDebtCategory);$("debtCategoryTotal").textContent=money(total);
  $("newVariableCategory").classList.toggle("hidden",categoryKind!=="variable");
+ $("categoryAddBtn").classList.toggle("hidden",isDebtCategory);
+ $("categoryRows").className="panel "+(isDebtCategory?"debt-receivables":"concept-list");
+ if(isDebtCategory){
+  const debtItems=debtRows(categoryKind,s.until);
+  $("categoryRows").innerHTML=debtItems.length?debtItems.map(debtRowHtml).join(""):empty(categoryKind==="receivable"?"No tienes deudas por cobrar.":"No tienes deudas por pagar.");
+ }else{
  $("categoryRows").innerHTML=items.length?items.map((x,i)=>{
   const plan=categoryKind==="fixed"?plans.find(p=>p.category===x.label):null;
   const due=plan?'<span class="concept-small">Día '+plan.dueDay+' · Previsto '+money(plan.amount)+' · '+(plan.status==="paid"?"Pagado":plan.status==="overdue"?"Vencido":plan.status==="urgent"?"Próximo":"Pendiente")+'</span>':"";
   return '<div class="concept-card"><button type="button" class="concept-open" data-concept="'+safe(x.label)+'" aria-label="Ver detalle de '+safe(x.label)+', '+money(x.amount)+'"><span class="concept-card-heading"><strong>'+safe(x.label)+'</strong><b>'+money(x.amount)+'</b><span class="concept-chevron" aria-hidden="true">›</span></span>'+due+'<span class="bar-track" aria-hidden="true"><span class="bar-fill" style="width:'+Math.round(100*x.amount/max)+'%;background:'+categoryColors[i%categoryColors.length]+'"></span></span></button>'+(plan?'<button type="button" class="concept-config" data-plan="'+safe(plan.id)+'" aria-label="Configurar '+safe(x.label)+'">Configurar gasto fijo</button>':"")+'</div>';
  }).join(""):empty(categoryKind==="payable"||categoryKind==="receivable"?"No tienes deudas pendientes en esta categoría.":"Agrega tu primer concepto desde el botón +.");
+ }
  const endBal=s.balances.digital+s.balances.cash,starting=accountBalance(month+"-00");
  const startBalance=starting.digital+starting.cash,expFixed=fixedPaid,expVariable=s.monthly.filter(x=>x.kind==="expense"&&x.expenseClass!=="fixed").reduce((a,x)=>a+x.amount,0);
  const debtPayable=entries.filter(x=>x.kind==="debt"&&x.direction==="payable"&&x.date<=s.until).reduce((a,x)=>a+debtBalance(x,s.until),0);
@@ -378,6 +456,13 @@ async function undoLatest(){
  await transaction("readwrite",store=>store.delete(latest.id));await refresh();showToast("Último registro deshecho.");
 }
 function enhancedBind(){
+ $("debtPaymentForm").addEventListener("submit",saveDebtPayment);
+ $("closeDebtPayment").addEventListener("click",()=>closeDebtPayment());
+ $("debtPaymentDialog").addEventListener("cancel",event=>{event.preventDefault();closeDebtPayment()});
+ $("debtPaymentAmount").addEventListener("input",()=>{$("debtPaymentError").textContent="";syncDirectPayment()});
+ $("debtPaymentAccount").addEventListener("change",syncDirectPayment);
+ $("fillDebtPayment").addEventListener("click",()=>{$("debtPaymentAmount").value=String(debtPaymentRemaining());$("debtPaymentError").textContent="";syncDirectPayment()});
+ $("deleteEditingDebt").addEventListener("click",async()=>{if(!editing||editing.kind!=="debt")return;const id=editing.id;await removeEntry(id);if(!entries.some(x=>x.id===id))closeEntry()});
  document.querySelectorAll("[data-entry-kind]").forEach(button=>button.addEventListener("click",()=>{
   $("entryKind").value=button.dataset.entryKind==="debt"?(editing?.kind==="debt"?"debt":"payment"):button.dataset.entryKind;
   $("debtAction").value=$("entryKind").value==="debt"?"new":"payment";selectedDebt=null;$("entryDebt").value="";
@@ -431,7 +516,7 @@ function enhancedBind(){
   else if(b.dataset.plan){openFixed(entries.find(x=>x.id===b.dataset.plan))}
   else if(b.dataset.due){payDue(b.dataset.due)}
   else if(b.dataset.concept){openConcept(b.dataset.concept)}
-  else if(b.dataset.conceptEdit){$("conceptDialog").close();const x=entries.find(x=>x.id===b.dataset.conceptEdit);if(x)openForm(x.kind,x)}
+  else if(b.dataset.conceptEdit){$("conceptDialog").close();const x=entries.find(x=>x.id===b.dataset.conceptEdit);if(x){if(x.kind==="payment")openDebtPayment(x.debtId,x);else openForm(x.kind,x)}}
  });
 }
 
@@ -442,7 +527,7 @@ function bind(){
  $("sheetBackdrop").addEventListener("click",closeMoreSheet);
  document.querySelectorAll("[data-sheet-nav]").forEach(x=>x.addEventListener("click",()=>navigate(x.dataset.sheetNav)));
  document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("moreSheet").classList.contains("hidden"))closeMoreSheet()});
-$("settingsButton").addEventListener("click",()=>navigate("settings"));$("prevMonth").addEventListener("click",()=>moveMonth(-1));$("nextMonth").addEventListener("click",()=>moveMonth(1));$("filterKind").addEventListener("change",render);$("fab").addEventListener("click",()=>openForm());$("newDebtBtn").addEventListener("click",()=>openForm("debt"));$("entryKind").addEventListener("change",adjustForm);$("entryDate").addEventListener("change",()=>{if($("entryKind").value==="payment")populateDebtOptions(editing?.kind==="payment"?editing.id:null)});$("entryAccount").addEventListener("change",()=>{if($("entryKind").value==="transfer")$("entryTarget").value=$("entryAccount").value==="digital"?"cash":"digital"});$("entryForm").addEventListener("submit",saveForm);$("closeDialog").addEventListener("click",closeEntry);$("cancelEntry").addEventListener("click",closeEntry);document.addEventListener("click",e=>{const b=e.target.closest("[data-edit],[data-delete],[data-pay],[data-settle]");if(!b)return;if(b.dataset.edit){const x=entries.find(z=>z.id===b.dataset.edit);if(x)openForm(x.kind,x)}else if(b.dataset.delete)removeEntry(b.dataset.delete);else if(b.dataset.pay||b.dataset.settle){$("conceptDialog").close();openForm("payment",null,b.dataset.pay||b.dataset.settle,b.dataset.settle?"settle":"payment")}});$("exportBackup").addEventListener("click",exportBackup);$("exportCsv").addEventListener("click",exportCsv);$("importBackup").addEventListener("click",()=>$("backupFile").click());$("backupFile").addEventListener("change",e=>importBackup(e.target.files?.[0]));$("eraseData").addEventListener("click",eraseAll);enhancedBind()}
+$("settingsButton").addEventListener("click",()=>navigate("settings"));$("prevMonth").addEventListener("click",()=>moveMonth(-1));$("nextMonth").addEventListener("click",()=>moveMonth(1));$("filterKind").addEventListener("change",render);$("fab").addEventListener("click",()=>openForm());$("newDebtBtn").addEventListener("click",()=>openForm("debt"));$("entryKind").addEventListener("change",adjustForm);$("entryDate").addEventListener("change",()=>{if($("entryKind").value==="payment")populateDebtOptions(editing?.kind==="payment"?editing.id:null)});$("entryAccount").addEventListener("change",()=>{if($("entryKind").value==="transfer")$("entryTarget").value=$("entryAccount").value==="digital"?"cash":"digital"});$("entryForm").addEventListener("submit",saveForm);$("closeDialog").addEventListener("click",closeEntry);$("cancelEntry").addEventListener("click",closeEntry);document.addEventListener("click",e=>{const b=e.target.closest("[data-edit],[data-delete],[data-pay],[data-settle]");if(!b)return;if(b.dataset.edit){const x=entries.find(z=>z.id===b.dataset.edit);if(x){if(x.kind==="payment")openDebtPayment(x.debtId,x);else openForm(x.kind,x)}}else if(b.dataset.delete)removeEntry(b.dataset.delete);else if(b.dataset.pay||b.dataset.settle){openDebtPayment(b.dataset.pay||b.dataset.settle,null,Boolean(b.dataset.settle))}});$("exportBackup").addEventListener("click",exportBackup);$("exportCsv").addEventListener("click",exportCsv);$("importBackup").addEventListener("click",()=>$("backupFile").click());$("backupFile").addEventListener("change",e=>importBackup(e.target.files?.[0]));$("eraseData").addEventListener("click",eraseAll);enhancedBind()}
 async function init(){try{db=await openDB();await seedVariableCategories();month=(nowBogota().slice(0,7) < FIRST_MONTH ? FIRST_MONTH : nowBogota().slice(0,7));bind();navigate("dashboard");await refresh();if("serviceWorker"in navigator&&location.protocol==="https:")navigator.serviceWorker.register("./sw.js").catch(()=>{});if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{})}catch(err){document.querySelector("main").innerHTML='<div class="panel empty-small">No se pudo iniciar Cash Control. Revisa la fecha del dispositivo y vuelve a cargar la aplicación.<br>'+safe(err.message)+'</div>';document.querySelector(".fab").hidden=true;console.error(err)}}
 init();
 })();

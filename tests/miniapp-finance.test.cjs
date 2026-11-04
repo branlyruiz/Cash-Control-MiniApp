@@ -10,14 +10,15 @@ const debt=(id,direction,amount=75000)=>base(id,'debt',amount,{direction});
 const payment=(id,debtId,amount,more={})=>base(id,'payment',amount,{debtId,...more});
 function app(records=[]){
  const elements=new Map();
- function el(id){if(!elements.has(id))elements.set(id,{value:'',textContent:'',disabled:false,classList:{add(){},remove(){},toggle(){}},contains(){return false},close(){},querySelectorAll(){return []}});return elements.get(id)}
+ function el(id){if(!elements.has(id))elements.set(id,{value:'',textContent:'',disabled:false,classList:{add(){},remove(){},toggle(){}},contains(){return false},close(){},focus(){},querySelectorAll(){return []}});return elements.get(id)}
  const sandbox={Intl,Date,Math,Number,String,Map,Set,Promise,crypto:{randomUUID},console,setTimeout:()=>0,clearTimeout(){},document:{getElementById:el,activeElement:null,querySelectorAll:()=>[]}};
  vm.createContext(sandbox);
  const hooks=`
  globalThis.api={
   configure(records){entries=records.slice();globalThis.saved=new Map(records.map(x=>[x.id,x]));transaction=async(mode,fn)=>fn({put:x=>globalThis.saved.set(x.id,x),delete:id=>globalThis.saved.delete(id)});refresh=async()=>{entries=[...globalThis.saved.values()]};},
   edit(record){editing=record},saveForm,accountBalance,categoryItems,debtBalance,debtsAvailable,summary,validEntry,validateBackup,
-  setMonth(value){month=value},getEntries(){return entries}
+  setMonth(value){month=value},getEntries(){return entries},debtRows,debtRowHtml,debtPaymentRemaining,saveDebtPayment,
+  direct(id,original=null){debtPaymentState={debtId:id,original}}
  };
  `;
  vm.runInContext(source.replace('\ninit();','\n'+hooks),sandbox);
@@ -93,4 +94,43 @@ test('respaldos previos mantienen deudas, transferencias y pagos sin migración'
  assert.equal(api.accountBalance('2026-11-30').digital,145000);
  assert.equal(api.accountBalance('2026-11-30').cash,30000);
  assert.equal(api.categoryItems('payable')[0].amount,50000);
+});
+
+for(const direction of ['receivable','payable']){
+ test(`${direction}: formulario directo guarda un abono y salda solo la deuda elegida`,async()=>{
+  const d=debt('a',direction),other=debt('b',direction),{api,el,setForm}=app([d,other]);
+  api.direct('a');setForm({debtPaymentAmount:'25000',debtPaymentDate:'2026-11-04',debtPaymentAccount:'cash',debtPaymentNote:'Prueba'});
+  await api.saveDebtPayment(event);
+  assert.equal(api.debtRows(direction).length,2);
+  assert.equal(api.debtRows(direction).find(x=>x.entry.id==='a').remaining,50000);
+  api.direct('a');setForm({debtPaymentAmount:String(api.debtPaymentRemaining())});await api.saveDebtPayment(event);
+  assert.equal(api.debtRows(direction).length,1);assert.equal(api.debtRows(direction)[0].entry.id,'b');
+  assert.equal(api.debtRows(null,'2026-11-30',true).length,1);
+  assert.equal(api.accountBalance('2026-11-30').cash,direction==='payable'?-75000:75000);
+  assert.equal(el('debtPaymentError').textContent,'');
+ });
+}
+test('formulario directo rechaza sobreabonos y conserva el borrador',async()=>{
+ const {api,el,setForm}=app([debt('a','payable')]);api.direct('a');
+ setForm({debtPaymentAmount:'75001',debtPaymentDate:'2026-11-04',debtPaymentAccount:'digital',debtPaymentNote:''});
+ await api.saveDebtPayment(event);assert.match(el('debtPaymentError').textContent,/supera el saldo/);
+ assert.equal(el('debtPaymentAmount').value,'75001');assert.equal(api.getEntries().length,1);
+});
+test('editar un abono desde el formulario directo excluye el valor anterior',async()=>{
+ const d=debt('a','receivable'),p=payment('p','a',25000),{api,setForm}=app([d,p]);api.direct('a',p);
+ assert.equal(api.debtPaymentRemaining(),75000);
+ setForm({debtPaymentAmount:'40000',debtPaymentDate:'2026-11-04',debtPaymentAccount:'digital',debtPaymentNote:''});await api.saveDebtPayment(event);
+ assert.equal(api.getEntries().length,2);assert.equal(api.debtBalance(d),35000);assert.equal(api.accountBalance('2026-11-30').digital,40000);
+});
+test('las filas mantienen separadas deudas que comparten concepto y escapan su texto',()=>{
+ const a=debt('a','payable'),b=debt('b','payable');a.category=b.category='<Cliente & prueba>';
+ const {api}=app([a,b]);const rows=api.debtRows('payable');assert.equal(rows.length,2);
+ assert.match(api.debtRowHtml(rows[0]),/data-pay="a"/);assert.match(api.debtRowHtml(rows[1]),/data-pay="b"/);
+ assert.doesNotMatch(api.debtRowHtml(rows[0]),/<Cliente/);assert.match(api.debtRowHtml(rows[0]),/&lt;Cliente &amp; prueba&gt;/);
+});
+test('el formulario directo protege contra doble envío',async()=>{
+ const {api,setForm}=app([debt('a','payable')]);api.direct('a');
+ setForm({debtPaymentAmount:'75000',debtPaymentDate:'2026-11-04',debtPaymentAccount:'digital',debtPaymentNote:''});
+ await Promise.all([api.saveDebtPayment(event),api.saveDebtPayment(event)]);
+ assert.equal(api.getEntries().filter(x=>x.kind==='payment').length,1);assert.equal(api.accountBalance('2026-11-30').digital,-75000);
 });
