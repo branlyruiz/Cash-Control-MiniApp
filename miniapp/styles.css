@@ -51,8 +51,8 @@
 .bottom-nav,.fab{display:none!important}
 .bottom-dock{position:fixed;z-index:40;bottom:calc(15px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:min(calc(100vw - 28px),690px);display:flex;align-items:center;gap:12px;filter:drop-shadow(0 12px 22px rgba(21,34,56,.10))}
 .dock-pill{min-width:0;flex:1;background:rgba(255,255,255,.91);border:1px solid rgba(230,233,240,.95);border-radius:999px;display:flex;align-items:center;gap:3px;padding:7px;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
-.dock-item{height:62px;min-width:0;flex:1 1 0;border:0;border-radius:999px;color:#28344c;background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:7px 2px;transition:background .2s ease,box-shadow .2s ease}
-.dock-item.active{flex:1 1 0;background:#fff;box-shadow:0 4px 18px rgba(25,43,72,.08)}
+.dock-item{height:62px;min-width:44px;flex:1 1 0;border:0;border-radius:999px;color:#28344c;background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:7px 2px;transition:background .2s ease,box-shadow .2s ease}
+.dock-item.active{flex:0 0 auto;padding-left:14px;padding-right:14px;border-radius:20px;background:#fff;box-shadow:0 4px 18px rgba(25,43,72,.08)}
 .dock-icon{display:grid;place-items:center;flex:none}.dock-icon svg{width:23px;height:23px}
 .dock-label{display:block;flex:0 0 auto;font-size:10.5px;line-height:1.2;font-weight:650;white-space:nowrap;letter-spacing:-.015em}.dock-item.active .dock-label{display:block}
 .dock-fab{width:65px;height:65px;flex:0 0 65px;background:linear-gradient(145deg,#6358fa,#4c3deb);border:0;border-radius:50%;font-size:39px;line-height:1;color:#fff;font-weight:300;display:grid;place-items:center;box-shadow:0 12px 26px rgba(78,63,224,.28)}
@@ -66,7 +66,7 @@
 .sheet-copy{display:flex;flex:1;flex-direction:column;gap:5px;min-width:0}.sheet-copy strong{font-size:14px}.sheet-copy small{font-size:11px;color:#8e99aa}
 .sheet-chevron{color:#9eabba;font-size:25px}
 .sheet-close{display:block;margin:12px auto 0;border:0;background:transparent;padding:8px 20px;color:#617086;font-size:13px;font-weight:750}
-@media(max-width:390px){.bottom-dock{width:calc(100vw - 20px);gap:8px}.dock-pill{padding:5px}.dock-item{height:58px;padding:6px 2px;gap:5px}.dock-icon svg{width:20px;height:20px}.dock-item.active{flex:1 1 0}.dock-label{font-size:10px}.dock-fab{width:60px;height:60px;flex-basis:60px;font-size:36px}.more-sheet{bottom:calc(100px + env(safe-area-inset-bottom))}}
+@media(max-width:390px){.bottom-dock{width:calc(100vw - 20px);gap:8px}.dock-pill{padding:5px}.dock-item{height:58px;padding:6px 2px;gap:5px}.dock-icon svg{width:20px;height:20px}.dock-item.active{flex:0 0 auto;padding-left:12px;padding-right:12px;border-radius:18px}.dock-label{font-size:10px}.dock-fab{width:60px;height:60px;flex-basis:60px;font-size:36px}.more-sheet{bottom:calc(100px + env(safe-area-inset-bottom))}}
 
 /* Inicio interactivo: pagos prioritarios y tarjetas navegables */
 .metric-button{display:flex;flex-direction:column;align-items:flex-start;text-align:left;width:100%;cursor:pointer;color:var(--ink)}
@@ -335,9 +335,9 @@
  .payment-footer{padding-left:18px;padding-right:18px}
 }
 
-/* V15 · Icono arriba y etiqueta debajo, con cuatro espacios del mismo ancho. */
+/* V15 · La opción activa reserva espacio para su etiqueta y márgenes interiores. */
 .dock-label-short,.dock-category-short{display:none}
-@media(max-width:410px){
+@media(max-width:420px){
  .dock-label-full{display:none}
  .dock-label-short{display:inline}
 }

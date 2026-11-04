@@ -21,7 +21,8 @@ En iPhone: abrir el enlace con Safari → Compartir → Añadir a pantalla de in
 
 ## Actualización V15
 
-- Menú flotante inspirado en la referencia de WhatsApp: icono arriba, etiqueta debajo, cuatro opciones del mismo ancho y sección activa resaltada.
+- Menú flotante inspirado en la referencia de WhatsApp: icono arriba, etiqueta debajo, opciones equilibradas y sección activa resaltada.
+- La burbuja activa se adapta al contenido con 12–14 px de margen horizontal y esquinas suaves, sin ajustar el borde al texto.
 - Etiquetas adaptadas a pantallas estrechas para conservar espacio dentro de las burbujas. Los nombres accesibles siguen siendo completos.
 - Separación ajustada entre el menú flotante y el panel Más.
 
