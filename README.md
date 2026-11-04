@@ -19,6 +19,12 @@ En iPhone: abrir el enlace con Safari → Compartir → Añadir a pantalla de in
 - No hay registros precargados, importación histórica automática ni conexión con la antigua base SQLite.
 - Las categorías se crean al añadir movimientos.
 
+## Actualización V15
+
+- Menú flotante inspirado en la referencia de WhatsApp: icono arriba, etiqueta debajo, cuatro opciones del mismo ancho y sección activa resaltada.
+- Etiquetas adaptadas a pantallas estrechas para conservar espacio dentro de las burbujas. Los nombres accesibles siguen siendo completos.
+- Separación ajustada entre el menú flotante y el panel Más.
+
 ## Actualización V14
 
 - Deudas a favor y en contra usan filas compactas como Por cobrar de Kuumi: inicial, concepto, nota, saldo pendiente y botón **+** para abonar directamente.
