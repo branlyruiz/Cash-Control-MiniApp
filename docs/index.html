@@ -11,9 +11,9 @@
 <link rel="manifest" href="./manifest.webmanifest"/>
 <link rel="icon" href="./icon.svg?v=10" type="image/svg+xml"/>
 <link rel="apple-touch-icon" href="./icon-180.png?v=10"/>
-<link rel="stylesheet" href="./styles.css?v=12"/>
+<link rel="stylesheet" href="./styles.css?v=13"/>
 <title>Cash Control · BRANLY RUIZ</title>
-<script defer src="./app.js?v=12"></script>
+<script defer src="./app.js?v=13"></script>
 </head>
 <body>
 <div class="app">
@@ -59,9 +59,8 @@
     <button class="category-tab active" data-category="income">Ingresos</button><button class="category-tab" data-category="variable">Gastos variables</button><button class="category-tab" data-category="fixed">Gastos fijos</button><button class="category-tab" data-category="receivable">Deudas a favor</button><button class="category-tab" data-category="payable">Deudas en contra</button>
   </div>
   <div class="metric-grid"><article class="metric"><span id="categoryMetricLabel">Total del mes</span><strong id="categoryMetricTotal">$ 0</strong></article><article class="metric"><span>Conceptos</span><strong id="categoryMetricCount">0</strong></article></div>
-  <section class="panel category-summary" id="categoryChart"></section>
   <div class="section-title"><h3>Valores por concepto</h3><div class="section-actions"><button type="button" class="text-button hidden" id="newVariableCategory">+ Categoría</button><button type="button" class="text-button" id="categoryAddBtn">+ Movimiento</button></div></div>
-  <section class="panel activity" id="categoryRows"></section>
+  <section class="panel concept-list" id="categoryRows" aria-label="Conceptos y valores"></section>
 </section>
 <section id="balanceView" class="view">
   <div class="page-heading"><p class="eyebrow">BALANCE MENSUAL</p><h2 id="balanceHeading">Balance</h2><p id="balanceDescription">Consulta el detalle de ingresos, salidas y saldos entre cuentas.</p></div>
@@ -105,27 +104,29 @@
 <div class="form-content movement-form-body">
 <div class="sheet-section"><div class="section-label">¿QUÉ VAS A REGISTRAR?</div>
 <div class="kind-pills" id="entryKindPills" role="group" aria-label="Tipo de movimiento">
-<button type="button" data-entry-kind="expense" class="kind-pill">↗ <span>Gasto</span></button>
 <button type="button" data-entry-kind="income" class="kind-pill active">↙ <span>Ingreso</span></button>
-<button type="button" data-entry-kind="transfer" class="kind-pill">⇄ <span>Transferir</span></button>
+<button type="button" data-entry-kind="expense" class="kind-pill">↗ <span>Gasto</span></button>
 <button type="button" data-entry-kind="debt" class="kind-pill">▤ <span>Deuda</span></button>
-<button type="button" data-entry-kind="payment" class="kind-pill">✓ <span>Abono</span></button>
 </div>
-<label class="field native-kind-fallback">Tipo de registro<select name="kind" id="entryKind" required><option value="income">Ingreso</option><option value="expense">Gasto</option><option value="transfer">Transferencia</option><option value="debt">Nueva deuda</option><option value="payment">Abono a deuda</option></select></label>
+<label class="field native-kind-fallback" hidden aria-hidden="true">Tipo de registro<select name="kind" id="entryKind" required><option value="income">Ingreso</option><option value="expense">Gasto</option><option value="transfer">Transferencia</option><option value="debt">Nueva deuda</option><option value="payment">Abono a deuda</option></select></label>
 </div>
-<div class="amount-panel"><label class="field amount-field" for="entryAmount"><span>VALOR DEL MOVIMIENTO · COP</span><div class="amount-input-wrap"><span class="money-prefix">$</span><input name="amount" id="entryAmount" type="number" inputmode="numeric" min="1" step="1" placeholder="0" required/></div></label></div>
+<section id="debtControls" class="debt-controls hidden" aria-label="Opciones de deuda">
+<label class="field" id="directionField">Tipo de deuda<select name="direction" id="entryDirection"><option value="receivable">A favor · Me deben</option><option value="payable">En contra · Yo debo</option></select></label>
+<label class="field">¿Qué deseas hacer?<select id="debtAction"><option value="payment">Abonar</option><option value="settle">Pagado total</option><option value="new">Registrar nueva deuda</option></select></label>
+<label class="field" id="debtField">Deuda<select name="debtId" id="entryDebt"><option value="">Selecciona una deuda</option></select></label>
+<p id="debtPaymentHint" class="debt-payment-hint" role="status" aria-live="polite"></p>
+</section>
+<div class="amount-panel" id="amountPanel"><label class="field amount-field" for="entryAmount"><span id="amountLabel">VALOR DEL MOVIMIENTO · COP</span><div class="amount-input-wrap"><span class="money-prefix">$</span><input name="amount" id="entryAmount" type="number" inputmode="numeric" min="1" step="1" placeholder="0" required/></div></label></div>
 <div class="sheet-section sheet-details"><div class="section-label">DETALLES DEL MOVIMIENTO</div>
 <div class="form-grid"><label class="field">Fecha<input name="date" id="entryDate" type="date" min="2026-11-01" required/></label><label class="field" id="accountField">Cuenta<select name="account" id="entryAccount"><option value="digital">Digital</option><option value="cash">Efectivo</option></select></label></div>
 <label class="field hidden" id="expenseClassField">Tipo de gasto<select id="expenseClass"><option value="variable">Gasto variable</option><option value="fixed">Gasto fijo</option></select></label>
 <label class="field hidden" id="targetField">Transferir a<select name="target" id="entryTarget"><option value="cash">Efectivo</option><option value="digital">Digital</option></select></label>
 <label class="field hidden" id="variablePickerField">Gasto variable frecuente<select id="variableCategoryPicker"></select></label>
 <label class="field" id="categoryField">Categoría<input name="category" id="entryCategory" list="categoriesList" maxlength="60" placeholder="Selecciona un concepto"/><datalist id="categoriesList"></datalist></label>
-<label class="field hidden" id="directionField">Tipo de deuda<select name="direction" id="entryDirection"><option value="receivable">Me deben</option><option value="payable">Yo debo</option></select></label>
-<label class="field hidden" id="debtField">Deuda a abonar<select name="debtId" id="entryDebt"><option value="">Selecciona una deuda</option></select></label>
 <label class="field" id="descriptionField">Nota (opcional)<input name="description" id="entryDescription" maxlength="180" placeholder="¿Qué deseas recordar?"/></label>
 <p class="validation" id="formError" role="alert" aria-live="polite"></p></div>
 </div>
-<footer class="dialog-actions movement-actions"><button type="button" class="cancel-btn" id="cancelEntry">Cancelar</button><button type="submit" class="save-btn"><span>✓</span> Guardar movimiento</button></footer>
+<footer class="dialog-actions movement-actions"><button type="button" class="cancel-btn" id="cancelEntry">Cancelar</button><button type="submit" class="save-btn" id="saveEntry">Guardar movimiento</button></footer>
 </form></dialog>
 <dialog id="quickPayDialog" class="entry-dialog"><form id="quickPayForm" novalidate>
 <header class="dialog-head"><div><p class="eyebrow">GASTO FIJO</p><h2>Confirmar pago</h2></div><button type="button" class="close" id="closeQuickPay" aria-label="Cerrar">×</button></header>

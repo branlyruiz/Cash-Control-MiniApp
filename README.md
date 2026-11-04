@@ -19,7 +19,17 @@ En iPhone: abrir el enlace con Safari → Compartir → Añadir a pantalla de in
 - No hay registros precargados, importación histórica automática ni conexión con la antigua base SQLite.
 - Las categorías se crean al añadir movimientos.
 
-## Funciones ampliadas (V5)
+## Actualización V13
+
+- Formulario con tres opciones principales: **Ingreso, Gasto y Deuda**. En Gasto se elige fijo o variable; en Deuda se elige a favor o en contra y se registra una nueva deuda, un abono o el pago total.
+- **Pagado total** calcula el saldo restante y guarda un abono por ese importe en la fecha y cuenta elegidas. Pagar deudas en contra resta disponible; cobrar deudas a favor lo suma. Las deudas saldadas dejan de aparecer en las categorías activas, conservando su historial.
+- Una sola tarjeta por concepto en Categorías, con valor, barra de proporción y acceso al detalle. El diseño de Inicio se conserva.
+- Campos de al menos 16 px para evitar la ampliación automática al editar en iPhone; cierre del formulario con liberación del teclado. Se mantiene el zoom manual.
+- Base IndexedDB y formato de respaldo JSON conservados. Los registros anteriores, incluidas transferencias, siguen siendo compatibles.
+
+Comprobaciones financieras: `node --test tests/miniapp-finance.test.cjs`.
+
+## Funciones de la miniapp
 
 - **Cinco secciones de categorías:** ingresos, gastos variables, gastos fijos, deudas a favor y deudas en contra.
 - **Gastos fijos recurrentes:** concepto, importe mensual previsto, día de pago (1–31) y mes desde el cual se aplica; las fechas se ajustan al último día de meses cortos.
