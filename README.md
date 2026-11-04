@@ -19,6 +19,13 @@ En iPhone: abrir el enlace con Safari → Compartir → Añadir a pantalla de in
 - No hay registros precargados, importación histórica automática ni conexión con la antigua base SQLite.
 - Las categorías se crean al añadir movimientos.
 
+## Actualización V16.1
+
+- Categorías sin la marca de selección ✓; el fondo y la negrita indican la opción activa, conservando el estado accesible.
+- Etiquetas **G. Variables** y **G. Fijos**, con los nombres accesibles completos.
+- Colores coherentes en botones, importes, tarjetas y barras: verde para ingresos, coral para gastos variables, azul para gastos fijos, verde azulado para deudas a favor y ocre para deudas en contra.
+- Paleta limitada a Categorías, con fondos suaves, texto contrastado y cuadros estables en dos filas.
+
 ## Actualización V16
 
 - Selector de categorías en dos filas: Ingresos, Variables y Fijos; Deudas a favor y Deudas en contra.

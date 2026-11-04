@@ -317,6 +317,7 @@ function enhancedRender(s){
  const items=categoryItems(categoryKind),total=items.reduce((a,x)=>a+x.amount,0),max=Math.max(1,...items.map(x=>x.amount));
  $("categoryMetricLabel").textContent=categoryKind==="fixed"?"Total pagado":categoryKind==="payable"||categoryKind==="receivable"?"Saldo pendiente":"Total del mes";
  $("categoryMetricTotal").textContent=money(total);$("categoryMetricCount").textContent=String(items.length);
+ $("categoriesView").dataset.category=categoryKind;
  $("categoryTabs").querySelectorAll("button").forEach(b=>{const selected=b.dataset.category===categoryKind;b.classList.toggle("active",selected);b.setAttribute("aria-pressed",String(selected))});
  const isDebtCategory=categoryKind==="payable"||categoryKind==="receivable";
  $("categoryMetrics").classList.toggle("hidden",isDebtCategory);
@@ -330,10 +331,10 @@ function enhancedRender(s){
   const debtItems=debtRows(categoryKind,s.until);
   $("categoryRows").innerHTML=debtItems.length?debtItems.map(debtRowHtml).join(""):empty(categoryKind==="receivable"?"No tienes deudas por cobrar.":"No tienes deudas por pagar.");
  }else{
- $("categoryRows").innerHTML=items.length?items.map((x,i)=>{
+ $("categoryRows").innerHTML=items.length?items.map(x=>{
   const plan=categoryKind==="fixed"?plans.find(p=>p.category===x.label):null;
   const due=plan?'<span class="concept-small">Día '+plan.dueDay+' · Previsto '+money(plan.amount)+' · '+(plan.status==="paid"?"Pagado":plan.status==="overdue"?"Vencido":plan.status==="urgent"?"Próximo":"Pendiente")+'</span>':"";
-  return '<div class="concept-card"><button type="button" class="concept-open" data-concept="'+safe(x.label)+'" aria-label="Ver detalle de '+safe(x.label)+', '+money(x.amount)+'"><span class="concept-card-heading"><strong>'+safe(x.label)+'</strong><b>'+money(x.amount)+'</b><span class="concept-chevron" aria-hidden="true">›</span></span>'+due+'<span class="bar-track" aria-hidden="true"><span class="bar-fill" style="width:'+Math.round(100*x.amount/max)+'%;background:'+categoryColors[i%categoryColors.length]+'"></span></span></button>'+(plan?'<button type="button" class="concept-config" data-plan="'+safe(plan.id)+'" aria-label="Configurar '+safe(x.label)+'">Configurar gasto fijo</button>':"")+'</div>';
+  return '<div class="concept-card"><button type="button" class="concept-open" data-concept="'+safe(x.label)+'" aria-label="Ver detalle de '+safe(x.label)+', '+money(x.amount)+'"><span class="concept-card-heading"><strong>'+safe(x.label)+'</strong><b>'+money(x.amount)+'</b><span class="concept-chevron" aria-hidden="true">›</span></span>'+due+'<span class="bar-track" aria-hidden="true"><span class="bar-fill" style="width:'+Math.round(100*x.amount/max)+'%"></span></span></button>'+(plan?'<button type="button" class="concept-config" data-plan="'+safe(plan.id)+'" aria-label="Configurar '+safe(x.label)+'">Configurar gasto fijo</button>':"")+'</div>';
  }).join(""):empty(categoryKind==="payable"||categoryKind==="receivable"?"No tienes deudas pendientes en esta categoría.":"Agrega tu primer concepto desde el botón +.");
  }
  const endBal=s.balances.digital+s.balances.cash,starting=accountBalance(month+"-00");
