@@ -268,7 +268,7 @@
 #categoriesView .metric{border-color:var(--category-border);background:linear-gradient(145deg,var(--category-tint),#fff 80%)}
 #categoryMetricTotal,#categoryMetricCount,#debtCategoryTotal,#categoriesView .text-button{color:var(--category-accent)}
 #categoryRows{border-color:var(--category-border)}
-#categoriesView .concept-card-heading b,#categoriesView .concept-chevron,#categoriesView .concept-config,#categoriesView .debt-row-amount{color:var(--category-accent)}
+#categoriesView .concept-card-heading b,#categoriesView .concept-chevron,#categoriesView .debt-row-amount{color:var(--category-accent)}
 #categoriesView .bar-track{background:var(--category-tint)}
 #categoriesView .bar-fill{background:var(--category-accent)}
 #categoriesView .debt-avatar,#categoriesView .debt-pay-add{background:var(--category-tint);color:var(--category-accent);border-color:var(--category-border)}
@@ -283,8 +283,41 @@
 #categoriesView .concept-chevron{font-size:24px;font-weight:400}
 #categoriesView .concept-open .bar-track{display:block;width:100%;height:6px}
 #categoriesView .concept-open .bar-fill{display:block;height:100%}
-#categoriesView .concept-small{font-size:12px;line-height:1.5}
-#categoriesView .concept-config{border:0;background:transparent;font-size:12px;font-weight:700;min-height:44px;padding:8px 2px;margin-top:-8px}
+
+/* Gastos fijos dentro de Categorías. */
+.fixed-category-list{padding:0 14px}
+.fixed-category-row{
+ display:grid;
+ grid-template-columns:36px minmax(0,1fr) minmax(0,.75fr);
+ align-items:center;
+ column-gap:10px;
+ padding:12px 0 4px;
+ border-bottom:1px solid var(--line);
+}
+.fixed-category-row:last-child{border-bottom:0}
+.fixed-category-avatar{
+ display:grid;place-items:center;width:36px;height:36px;border-radius:50%;
+ color:var(--category-accent);background:var(--category-tint);font-size:14px;font-weight:750;
+}
+.fixed-category-detail{
+ display:flex;flex-direction:column;justify-content:center;gap:4px;
+ min-height:44px;min-width:0;padding:0;border:0;background:transparent;
+ color:var(--ink);text-align:left;overflow-wrap:anywhere;
+}
+.fixed-category-detail strong{font-size:14px;line-height:1.35}
+.fixed-category-detail small{font-size:12px;line-height:1.4;color:#56647a}
+.fixed-category-amount{
+ text-align:right;font-size:15px;color:var(--category-accent);
+ font-variant-numeric:tabular-nums;overflow-wrap:anywhere;
+}
+.fixed-category-actions{grid-column:2 / -1;justify-self:end;display:flex;gap:8px}
+.fixed-category-actions button{
+ min-height:44px;padding:0 8px;border:0;background:transparent;border-radius:9px;
+ color:var(--category-accent);font-size:12px;font-weight:700;
+}
+.fixed-category-actions button:last-child{color:#974c3c}
+.fixed-category-actions button:active{background:var(--category-tint)}
+#fixedDialog input{font-size:16px;min-width:0}
 .concept-detail-record{padding-bottom:12px;border-bottom:1px solid var(--line)}
 .concept-detail-record:last-child{border-bottom:0}
 #conceptDetails .concept-detail-record .concept-item{border-bottom:0}

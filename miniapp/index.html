@@ -11,9 +11,9 @@
 <link rel="manifest" href="./manifest.webmanifest"/>
 <link rel="icon" href="./icon.svg?v=10" type="image/svg+xml"/>
 <link rel="apple-touch-icon" href="./icon-180.png?v=10"/>
-<link rel="stylesheet" href="./styles.css?v=16.1"/>
+<link rel="stylesheet" href="./styles.css?v=16.2"/>
 <title>Cash Control · BRANLY RUIZ</title>
-<script defer src="./app.js?v=16.1"></script>
+<script defer src="./app.js?v=16.2"></script>
 </head>
 <body>
 <div class="app">
@@ -156,7 +156,7 @@
 <footer class="dialog-actions"><button type="button" id="cancelQuickPay" class="cancel-btn">Cancelar</button><button type="submit" id="confirmQuickPay" class="save-btn">Confirmar pago</button></footer>
 </form></dialog>
 <dialog id="variableCategoryDialog" class="entry-dialog"><form id="variableCategoryForm" novalidate><header class="dialog-head"><div><p class="eyebrow">GASTOS VARIABLES</p><h2 id="variableCategoryTitle">Nueva categoría</h2></div><button type="button" class="close" id="closeVariableCategory" aria-label="Cerrar">×</button></header><div class="form-content"><label class="field">Nombre del concepto<input id="variableCategoryName" maxlength="60" required placeholder="Ej. Comida chatarra"/></label><p class="small-note">El nombre aparecerá en los gastos repetitivos y en los resúmenes mensuales.</p><p class="validation" id="variableCategoryError" role="alert"></p></div><footer class="dialog-actions"><button type="button" id="cancelVariableCategory" class="cancel-btn">Cancelar</button><button type="submit" class="save-btn">Guardar categoría</button></footer></form></dialog>
-<dialog id="fixedDialog" class="entry-dialog"><form id="fixedForm" method="dialog" novalidate>
+<dialog id="fixedDialog" class="entry-dialog" aria-labelledby="fixedDialogTitle"><form id="fixedForm" method="dialog" novalidate>
 <header class="dialog-head"><div><p class="eyebrow">PAGO RECURRENTE</p><h2 id="fixedDialogTitle">Nuevo gasto fijo</h2></div><button type="button" class="close" id="closeFixedDialog" aria-label="Cerrar">×</button></header>
 <div class="form-content">
 <label class="field">Concepto<input id="fixedName" maxlength="60" required placeholder="Ej. Internet, arriendo, suscripción"/></label>
@@ -165,7 +165,7 @@
 <label class="field">Vigente desde<input id="fixedFrom" type="month" min="2026-11" required/></label>
 <p class="small-note">Si el mes tiene menos días, el vencimiento será su último día. Un abono positivo al concepto lo marca como pagado ese mes.</p>
 <p class="validation" id="fixedFormError" role="alert"></p>
-</div><footer class="dialog-actions"><button type="button" id="cancelFixed" class="cancel-btn">Cancelar</button><button type="submit" class="save-btn">Guardar</button></footer></form></dialog>
+</div><footer class="dialog-actions"><button type="button" id="cancelFixed" class="cancel-btn">Cancelar</button><button type="submit" class="save-btn" id="saveFixedBtn">Guardar</button></footer></form></dialog>
 <dialog id="conceptDialog" class="entry-dialog"><div class="dialog-head"><div><p class="eyebrow">DETALLE POR CONCEPTO</p><h2 id="conceptDialogTitle">Concepto</h2></div><button class="close" id="closeConceptDialog" aria-label="Cerrar">×</button></div><div class="form-content" id="conceptDetails"></div><footer class="dialog-actions"><button class="cancel-btn" id="renameConcept">Renombrar</button><button class="cancel-btn" id="deleteConcept">Eliminar valores del mes</button><button class="cancel-btn hidden" id="deleteVariableCategory">Quitar categoría</button></footer></dialog>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 </body>

@@ -11,13 +11,14 @@ const payment=(id,debtId,amount,more={})=>base(id,'payment',amount,{debtId,...mo
 function app(records=[]){
  const elements=new Map();
  function el(id){if(!elements.has(id))elements.set(id,{value:'',textContent:'',disabled:false,classList:{add(){},remove(){},toggle(){}},contains(){return false},close(){},focus(){},querySelectorAll(){return []}});return elements.get(id)}
- const sandbox={Intl,Date,Math,Number,String,Map,Set,Promise,crypto:{randomUUID},console,setTimeout:()=>0,clearTimeout(){},document:{getElementById:el,activeElement:null,querySelectorAll:()=>[]}};
+ const sandbox={Intl,Date,Math,Number,String,Map,Set,Promise,crypto:{randomUUID},console,confirm:()=>true,setTimeout:()=>0,clearTimeout(){},document:{getElementById:el,activeElement:null,querySelectorAll:()=>[]}};
  vm.createContext(sandbox);
  const hooks=`
  globalThis.api={
   configure(records){entries=records.slice();globalThis.saved=new Map(records.map(x=>[x.id,x]));transaction=async(mode,fn)=>fn({put:x=>globalThis.saved.set(x.id,x),delete:id=>globalThis.saved.delete(id)});refresh=async()=>{entries=[...globalThis.saved.values()]};},
   edit(record){editing=record},saveForm,accountBalance,categoryItems,debtBalance,debtsAvailable,summary,validEntry,validateBackup,
   setMonth(value){month=value},getEntries(){return entries},debtRows,debtRowHtml,debtPaymentRemaining,saveDebtPayment,
+  editFixed(record){fixedEditing=record},saveFixed,removeFixedPlan,eligiblePlans,fixedCategoryRows,
   direct(id,original=null){debtPaymentState={debtId:id,original}}
  };
  `;
@@ -26,6 +27,50 @@ function app(records=[]){
  for(const [id,value] of Object.entries({entryKind:'payment',entryAmount:'',entryDate:'2026-11-04',entryAccount:'digital',entryCategory:'',entryDescription:'',debtAction:'settle'}))el(id).value=value;
  return {api,el,setForm(values){for(const [id,value] of Object.entries(values))el(id).value=value}};
 }
+
+test('los vencimientos pendientes van por fecha efectiva y los pagos quedan después',()=>{
+ const plans=[
+  base('late','fixed_plan',1000,{dueDay:31}),
+  base('soon','fixed_plan',3000,{dueDay:6}),
+  base('paid','fixed_plan',2000,{dueDay:1})
+ ];
+ const paid=base('expense','expense',2000,{category:plans[2].category,expenseClass:'fixed',date:'2027-02-01'});
+ const {api}=app([...plans,paid]);
+ api.setMonth('2027-02');
+ const rows=api.fixedCategoryRows(api.eligiblePlans(),[paid]);
+ assert.deepEqual(Array.from(rows,row=>[row.id,row.date]),[
+  ['soon','2027-02-06'],['late','2027-02-28'],['paid','2027-02-01']
+ ]);
+});
+
+test('editar el concepto del plan conserva el pago asociado y su importe',async()=>{
+ const plan=base('plan','fixed_plan',60000,{category:'Internet',dueDay:6,date:'2026-11-01'});
+ const paid=base('expense','expense',55000,{category:'internet',expenseClass:'fixed'});
+ const {api,setForm}=app([plan,paid]);
+ api.setMonth('2026-11');
+ api.editFixed(plan);
+ setForm({fixedName:'Fibra',fixedAmount:'65000',fixedDay:'12',fixedFrom:'2026-11'});
+ await api.saveFixed(event);
+ const [updated]=api.eligiblePlans();
+ assert.equal(updated.category,'Fibra');
+ assert.equal(updated.due,'2026-11-12');
+ assert.equal(updated.amount,65000);
+ assert.equal(updated.status,'paid');
+ assert.equal(updated.paid,55000);
+ assert.equal(api.accountBalance('2026-11-30').digital,-55000);
+});
+
+test('eliminar una recurrencia retira sus versiones y conserva los pagos en la lista',async()=>{
+ const plan=base('plan','fixed_plan',60000,{category:'Internet',dueDay:6,date:'2026-11-01'});
+ const replacement=base('plan-next','fixed_plan',65000,{category:'INTERNET',dueDay:12,date:'2026-12-01'});
+ const paid=base('expense','expense',55000,{category:'Internet',expenseClass:'fixed'});
+ const {api}=app([plan,replacement,paid]);
+ api.setMonth('2026-12');
+ await api.removeFixedPlan(replacement.id);
+ assert.equal(api.eligiblePlans().length,0);
+ assert.deepEqual(Array.from(api.getEntries(),entry=>entry.id),[paid.id]);
+ assert.equal(api.fixedCategoryRows([],[paid])[0].scheduled,false);
+});
 for(const direction of ['payable','receivable']){
  test(`${direction}: abono y pago total ajustan disponible, resumen y categoría`,async()=>{
   const d=debt('d',direction),initial=base('income','income',200000),{api,el,setForm}=app([initial,d]);

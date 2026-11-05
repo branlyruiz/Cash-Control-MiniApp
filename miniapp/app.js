@@ -3,7 +3,7 @@
 const START="2026-11-01", FIRST_MONTH="2026-11", DB_NAME="BR_CASH_CONTROL_LOCAL_V1";
 const $=id=>document.getElementById(id);
 const money=n=>new Intl.NumberFormat("es-CO",{style:"currency",currency:"COP",maximumFractionDigits:0}).format(Number(n)||0);
-const niceDate=s=>new Intl.DateTimeFormat("es-CO",{day:"numeric",month:"short",year:"numeric",timeZone:"UTC"}).format(new Date(s+"T12:00:00Z"));
+const niceDate=(s,short=false)=>new Intl.DateTimeFormat("es-CO",{day:"numeric",month:"short",year:short?undefined:"numeric",timeZone:"UTC"}).format(new Date(s+"T12:00:00Z"));
 const monthText=s=>new Intl.DateTimeFormat("es-CO",{month:"long",year:"numeric",timeZone:"UTC"}).format(new Date(s+"-01T12:00:00Z"));
 const nowBogota=()=>{const parts=new Intl.DateTimeFormat("en-US",{timeZone:"America/Bogota",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date());const part=type=>parts.find(x=>x.type===type)?.value||"";return `${part("year")}-${part("month")}-${part("day")}`};
 const safe=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -254,15 +254,17 @@ async function eraseAll(){if(!confirm("¿Eliminar TODOS los movimientos, deudas 
 let categoryKind="income",conceptSelection=null,fixedEditing=null,quickPayPlanId=null,quickPaySaving=false;
 const categoryNames={income:"Ingresos",variable:"Gastos variables",fixed:"Gastos fijos",receivable:"Deudas a favor",payable:"Deudas en contra"};
 const categoryColors=["#65bda0","#eead80","#8b9dcc","#b9a0d8","#d77d75","#a3bb6f","#5f97ae"];
+const fixedNameKey=label=>label.toLocaleLowerCase("es-CO");
+const isFixedExpense=x=>x.kind==="expense"&&x.expenseClass==="fixed";
 function fixedPlans(period){
  const byName=new Map();
  for(const x of entries.filter(x=>x.kind==="fixed_plan"&&x.date.slice(0,7)<=period).sort((a,b)=>a.date.localeCompare(b.date)||a.created.localeCompare(b.created))){
-   byName.set(x.category.toLocaleLowerCase("es-CO"),x);
+   byName.set(fixedNameKey(x.category),x);
  }
  return [...byName.values()].sort((a,b)=>a.dueDay-b.dueDay||a.category.localeCompare(b.category));
 }
 function paidFixed(period,cat){
- return entries.filter(x=>x.kind==="expense"&&x.expenseClass==="fixed"&&x.date.slice(0,7)===period&&x.category.toLocaleLowerCase("es-CO")===cat.toLocaleLowerCase("es-CO")).reduce((s,x)=>s+x.amount,0);
+ return entries.filter(x=>isFixedExpense(x)&&x.date.slice(0,7)===period&&fixedNameKey(x.category)===fixedNameKey(cat)).reduce((s,x)=>s+x.amount,0);
 }
 function dueData(plan,period){
  const [year,mon]=period.split("-").map(Number),maxDay=new Date(Date.UTC(year,mon,0)).getUTCDate();
@@ -273,6 +275,36 @@ function dueData(plan,period){
  return {...plan,due,paid,days,status};
 }
 function eligiblePlans(){return fixedPlans(month).map(p=>dueData(p,month))}
+function fixedCategoryRows(plans,movements){
+ const plannedNames=new Set(plans.map(plan=>fixedNameKey(plan.category)));
+ const rows=plans.map(plan=>({
+  id:plan.id,label:plan.category||"Sin concepto",amount:plan.amount,date:plan.due,
+  status:plan.status==="urgent"&&plan.days===0?"today":plan.status,scheduled:true
+ }));
+ for(const movement of movements){
+  if(!plannedNames.has(fixedNameKey(movement.category))){
+   rows.push({id:movement.id,label:movement.category||"Sin concepto",amount:movement.amount,date:movement.date,status:"paid",scheduled:false});
+  }
+ }
+ return rows.sort((a,b)=>Number(a.status==="paid")-Number(b.status==="paid")||a.date.localeCompare(b.date)||a.label.localeCompare(b.label,"es-CO"));
+}
+function fixedCategoryRowHtml(row){
+ const label=safe(row.label),id=safe(row.id),initial=safe(Array.from(row.label)[0].toLocaleUpperCase("es-CO"));
+ const status={paid:"Pagado",overdue:"Vencido",today:"Hoy",urgent:"Próximo",upcoming:"Pendiente"}[row.status];
+ const edit=row.scheduled?"data-plan":"data-edit",remove=row.scheduled?"data-remove-plan":"data-delete";
+ return `<article class="fixed-category-row">
+  <span class="fixed-category-avatar" aria-hidden="true">${initial}</span>
+  <button type="button" class="fixed-category-detail" data-concept="${label}" aria-label="Ver detalle de ${label}">
+   <strong>${label}</strong>
+   <small><time datetime="${safe(row.date)}" aria-label="${niceDate(row.date)}">${niceDate(row.date,true)}</time> · ${status}</small>
+  </button>
+  <strong class="fixed-category-amount">${money(row.amount)}</strong>
+  <div class="fixed-category-actions">
+   <button type="button" ${edit}="${id}" aria-label="Editar ${label}">Editar</button>
+   <button type="button" ${remove}="${id}" aria-label="Eliminar ${label}">Eliminar</button>
+  </div>
+ </article>`;
+}
 function line(label,value,sub=""){return '<div class="balance-line"><div><strong>'+safe(label)+'</strong>'+(sub?'<small>'+safe(sub)+'</small>':"")+'</div><b>'+money(value)+'</b></div>'}
 function categoryItems(kind){
  const result=new Map(),periodEntries=entries.filter(x=>x.date.slice(0,7)===month);
@@ -293,7 +325,8 @@ function categoryItems(kind){
  return [...result].map(([label,amount])=>({label,amount})).sort((a,b)=>b.amount-a.amount||a.label.localeCompare(b.label));
 }
 function enhancedRender(s){
- const plans=eligiblePlans(),fixedPaid=entries.filter(x=>x.kind==="expense"&&x.expenseClass==="fixed"&&x.date.slice(0,7)===month).reduce((a,x)=>a+x.amount,0);
+ const plans=eligiblePlans(),fixedMovements=s.monthly.filter(isFixedExpense);
+ const fixedPaid=fixedMovements.reduce((sum,x)=>sum+x.amount,0);
  const planned=plans.reduce((a,p)=>a+p.amount,0);
  const upcoming=plans.filter(p=>p.status!=="paid"&&p.amount>0).sort((a,b)=>a.due.localeCompare(b.due)||a.category.localeCompare(b.category)).slice(0,3);
  $("fixedPaid").textContent=money(fixedPaid);
@@ -322,20 +355,21 @@ function enhancedRender(s){
  const isDebtCategory=categoryKind==="payable"||categoryKind==="receivable";
  $("categoryMetrics").classList.toggle("hidden",isDebtCategory);
  $("categoryListCaption").classList.toggle("is-debt-caption",isDebtCategory);
- $("categoryListTitle").textContent=isDebtCategory?"Saldo pendiente":"Valores por concepto";
+ $("categoryListTitle").textContent=isDebtCategory?"Saldo pendiente":categoryKind==="fixed"?"Vencimientos":"Valores por concepto";
  $("debtCategoryTotal").classList.toggle("hidden",!isDebtCategory);$("debtCategoryTotal").textContent=money(total);
  $("newVariableCategory").classList.toggle("hidden",categoryKind!=="variable");
  $("categoryAddBtn").classList.toggle("hidden",isDebtCategory);
- $("categoryRows").className="panel "+(isDebtCategory?"debt-receivables":"concept-list");
+ $("categoryAddBtn").textContent=categoryKind==="fixed"?"+ Gasto fijo":"+ Movimiento";
+ $("categoryRows").className="panel "+(isDebtCategory?"debt-receivables":categoryKind==="fixed"?"fixed-category-list":"concept-list");
  if(isDebtCategory){
   const debtItems=debtRows(categoryKind,s.until);
   $("categoryRows").innerHTML=debtItems.length?debtItems.map(debtRowHtml).join(""):empty(categoryKind==="receivable"?"No tienes deudas por cobrar.":"No tienes deudas por pagar.");
+ }else if(categoryKind==="fixed"){
+  const rows=fixedCategoryRows(plans,fixedMovements);
+  $("categoryMetricCount").textContent=String(new Set(rows.map(row=>fixedNameKey(row.label))).size);
+  $("categoryRows").innerHTML=rows.length?rows.map(fixedCategoryRowHtml).join(""):empty("Agrega tu primer gasto desde + Gasto fijo.");
  }else{
- $("categoryRows").innerHTML=items.length?items.map(x=>{
-  const plan=categoryKind==="fixed"?plans.find(p=>p.category===x.label):null;
-  const due=plan?'<span class="concept-small">Día '+plan.dueDay+' · Previsto '+money(plan.amount)+' · '+(plan.status==="paid"?"Pagado":plan.status==="overdue"?"Vencido":plan.status==="urgent"?"Próximo":"Pendiente")+'</span>':"";
-  return '<div class="concept-card"><button type="button" class="concept-open" data-concept="'+safe(x.label)+'" aria-label="Ver detalle de '+safe(x.label)+', '+money(x.amount)+'"><span class="concept-card-heading"><strong>'+safe(x.label)+'</strong><b>'+money(x.amount)+'</b><span class="concept-chevron" aria-hidden="true">›</span></span>'+due+'<span class="bar-track" aria-hidden="true"><span class="bar-fill" style="width:'+Math.round(100*x.amount/max)+'%"></span></span></button>'+(plan?'<button type="button" class="concept-config" data-plan="'+safe(plan.id)+'" aria-label="Configurar '+safe(x.label)+'">Configurar gasto fijo</button>':"")+'</div>';
- }).join(""):empty(categoryKind==="payable"||categoryKind==="receivable"?"No tienes deudas pendientes en esta categoría.":"Agrega tu primer concepto desde el botón +.");
+  $("categoryRows").innerHTML=items.length?items.map(x=>'<div class="concept-card"><button type="button" class="concept-open" data-concept="'+safe(x.label)+'" aria-label="Ver detalle de '+safe(x.label)+', '+money(x.amount)+'"><span class="concept-card-heading"><strong>'+safe(x.label)+'</strong><b>'+money(x.amount)+'</b><span class="concept-chevron" aria-hidden="true">›</span></span><span class="bar-track" aria-hidden="true"><span class="bar-fill" style="width:'+Math.round(100*x.amount/max)+'%"></span></span></button></div>').join(""):empty("Agrega tu primer concepto desde el botón +.");
  }
  const endBal=s.balances.digital+s.balances.cash,starting=accountBalance(month+"-00");
  const startBalance=starting.digital+starting.cash,expFixed=fixedPaid,expVariable=s.monthly.filter(x=>x.kind==="expense"&&x.expenseClass!=="fixed").reduce((a,x)=>a+x.amount,0);
@@ -353,12 +387,38 @@ function openFixed(plan=null){
  $("fixedName").value=plan?.category||"";$("fixedAmount").value=plan?.amount??"";$("fixedDay").value=plan?.dueDay||"";$("fixedFrom").value=plan?.date.slice(0,7)||month;$("fixedFormError").textContent="";$("fixedDialog").showModal();
 }
 async function saveFixed(e){
- e.preventDefault();const category=$("fixedName").value.trim(),amount=Number($("fixedAmount").value),day=Number($("fixedDay").value),from=$("fixedFrom").value;
- if(!category||!Number.isSafeInteger(amount)||amount<0||!Number.isInteger(day)||day<1||day>31||!/^20\d\d-(0[1-9]|1[0-2])$/.test(from)||from<FIRST_MONTH){$("fixedFormError").textContent="Revisa el concepto, el importe, el día (1-31) y el mes inicial.";return}
- const existing=entries.find(x=>x.kind==="fixed_plan"&&x.id!==fixedEditing?.id&&x.category.toLocaleLowerCase("es-CO")===category.toLocaleLowerCase("es-CO")&&x.date.slice(0,7)===from);
+ e.preventDefault();
+ const submit=$("saveFixedBtn");
+ if(submit.disabled)return;
+ const category=$("fixedName").value.trim(),rawAmount=$("fixedAmount").value,amount=Number(rawAmount),day=Number($("fixedDay").value),from=$("fixedFrom").value;
+ if(!category||!rawAmount||!Number.isSafeInteger(amount)||amount<0||!Number.isInteger(day)||day<1||day>31||!/^20\d\d-(0[1-9]|1[0-2])$/.test(from)||from<FIRST_MONTH){$("fixedFormError").textContent="Revisa el concepto, el importe, el día (1-31) y el mes inicial.";return}
+ const newName=fixedNameKey(category),oldName=fixedEditing?fixedNameKey(fixedEditing.category):newName;
+ const existing=entries.find(x=>x.kind==="fixed_plan"&&x.id!==fixedEditing?.id&&[oldName,newName].includes(fixedNameKey(x.category))&&x.date.slice(0,7)===from);
  if(existing){$("fixedFormError").textContent="Ya existe un plan con este concepto y mes. Edítalo en lugar de duplicarlo.";return}
+ if(oldName!==newName&&entries.some(x=>(x.kind==="fixed_plan"||isFixedExpense(x))&&fixedNameKey(x.category)===newName)){
+  $("fixedFormError").textContent="Ya existe otro gasto fijo con ese concepto.";return;
+ }
+ const related=fixedEditing&&fixedEditing.category!==category?entries.filter(x=>x.id!==fixedEditing.id&&(x.kind==="fixed_plan"||isFixedExpense(x))&&fixedNameKey(x.category)===oldName):[];
  const item={id:fixedEditing?.id||uid(),kind:"fixed_plan",created:fixedEditing?.created||new Date().toISOString(),date:from+"-01",account:"digital",category,description:"",amount,dueDay:day};
- await transaction("readwrite",store=>store.put(item));$("fixedDialog").close();await refresh();showToast("Gasto fijo guardado.");
+ submit.disabled=true;
+ try{
+  await transaction("readwrite",store=>{
+   store.put(item);
+   for(const record of related)store.put({...record,category});
+  });
+  $("fixedDialog").close();await refresh();showToast("Gasto fijo guardado.");
+ }catch(err){$("fixedFormError").textContent="No se pudo guardar el gasto fijo."}
+ finally{submit.disabled=false}
+}
+async function removeFixedPlan(id){
+ const plan=entries.find(x=>x.id===id&&x.kind==="fixed_plan");
+ if(!plan||!confirm("¿Eliminar la programación recurrente de "+plan.category+"? Los pagos ya registrados se conservarán."))return;
+ const plans=entries.filter(x=>x.kind==="fixed_plan"&&fixedNameKey(x.category)===fixedNameKey(plan.category));
+ try{
+  await transaction("readwrite",store=>{for(const record of plans)store.delete(record.id)});
+  if($("conceptDialog").open)$("conceptDialog").close();
+  await refresh();showToast("Plan recurrente eliminado.");
+ }catch(err){showToast("No fue posible eliminar el plan.")}
 }
 function payDue(id){
  const plan=eligiblePlans().find(p=>p.id===id);
@@ -395,12 +455,13 @@ async function confirmQuickPay(event){
 }
 function relatedTo(kind,label){
  return entries.filter(x=>{if(kind==="income")return x.date.slice(0,7)===month&&(x.kind==="income"&&x.category===label||x.kind==="payment"&&entries.some(d=>d.id===x.debtId&&d.direction==="receivable"&&d.category===label));
- if(kind==="variable"||kind==="fixed")return x.kind==="expense"&&(kind==="fixed"?x.expenseClass==="fixed":x.expenseClass!=="fixed")&&x.category===label&&x.date.slice(0,7)===month;
+ if(kind==="fixed")return isFixedExpense(x)&&fixedNameKey(x.category||"Sin concepto")===fixedNameKey(label)&&x.date.slice(0,7)===month;
+ if(kind==="variable")return x.kind==="expense"&&x.expenseClass!=="fixed"&&x.category===label&&x.date.slice(0,7)===month;
  return x.kind==="debt"&&x.direction===kind&&x.category===label&&x.date.slice(0,7)<=month});
 }
 function openConcept(label){
  conceptSelection={kind:categoryKind,label};$("conceptDialogTitle").textContent=label;$("deleteVariableCategory").classList.toggle("hidden",categoryKind!=="variable");
- const rows=relatedTo(categoryKind,label),plan=categoryKind==="fixed"?eligiblePlans().find(p=>p.category===label):null;
+ const rows=relatedTo(categoryKind,label),plan=categoryKind==="fixed"?eligiblePlans().find(p=>fixedNameKey(p.category||"Sin concepto")===fixedNameKey(label)):null;
  $("conceptDetails").innerHTML=(plan?line("Previsto",plan.amount,"Día de pago "+plan.dueDay)+'<button class="small-action danger" data-remove-plan="'+safe(plan.id)+'">Eliminar plan recurrente</button>':"")+(rows.length?rows.map(x=>{
   const isDebt=x.kind==="debt",remaining=isDebt?debtBalance(x,month+"-31"):x.amount;
   return '<div class="concept-detail-record"><div class="concept-item"><div class="concept-name"><strong>'+niceDate(x.date)+'</strong><small>'+safe(x.description||kinds[x.kind])+(isDebt?' · Inicial '+money(x.amount):'')+'</small></div><div class="concept-right"><strong>'+money(remaining)+'</strong><button class="mini-btn" data-concept-edit="'+safe(x.id)+'">Editar</button></div></div>'+(isDebt&&remaining>0?'<div class="debt-detail-actions"><button type="button" class="small-action" data-pay="'+safe(x.id)+'">Abonar</button><button type="button" class="small-action" data-settle="'+safe(x.id)+'">Pagado total</button></div>':"")+'</div>';
@@ -511,8 +572,8 @@ function enhancedBind(){
  $("deleteConcept").addEventListener("click",deleteSelected);
  document.addEventListener("click",async e=>{
   const b=e.target.closest("[data-plan],[data-due],[data-concept],[data-concept-edit],[data-remove-plan]");if(!b)return;
-  if(b.dataset.removePlan){const plan=entries.find(x=>x.id===b.dataset.removePlan);if(plan&&confirm("¿Eliminar la programación recurrente de "+plan.category+"? Los pagos ya registrados se conservarán.")){await transaction("readwrite",store=>store.delete(plan.id));$("conceptDialog").close();await refresh();showToast("Plan recurrente eliminado.");}}
-  else if(b.dataset.plan){openFixed(entries.find(x=>x.id===b.dataset.plan))}
+  if(b.dataset.removePlan){await removeFixedPlan(b.dataset.removePlan)}
+  else if(b.dataset.plan){const plan=entries.find(x=>x.id===b.dataset.plan&&x.kind==="fixed_plan");if(plan)openFixed(plan)}
   else if(b.dataset.due){payDue(b.dataset.due)}
   else if(b.dataset.concept){openConcept(b.dataset.concept)}
   else if(b.dataset.conceptEdit){$("conceptDialog").close();const x=entries.find(x=>x.id===b.dataset.conceptEdit);if(x){if(x.kind==="payment")openDebtPayment(x.debtId,x);else openForm(x.kind,x)}}
