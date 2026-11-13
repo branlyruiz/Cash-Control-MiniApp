@@ -327,7 +327,7 @@ function enhancedRender(s){
  $("fixedPaid").textContent=money(fixedPaid);
  $("fixedAlerts").classList.toggle("hidden",!upcoming.length);
  $("alertItems").innerHTML=upcoming.map(p=>{
-  return '<button type="button" class="priority-row" data-due="'+safe(p.id)+'" aria-label="Pagar '+safe(p.category)+', día '+p.due.slice(-2)+', '+money(p.amount)+'"><span class="priority-day">'+safe(Array.from(p.category)[0])+'</span><span class="priority-name">'+safe(p.category)+'<small>'+niceDate(p.due,true)+'</small></span><strong class="priority-amount">'+money(p.amount)+'</strong></button>';
+  return '<button type="button" class="priority-row" data-due="'+safe(p.id)+'" aria-label="Pagar '+safe(p.category)+', día '+p.due.slice(-2)+', '+money(p.amount)+'"><span class="priority-day">'+Number(p.due.slice(-2))+'</span><span class="priority-name">'+safe(p.category)+'</span><strong class="priority-amount">'+money(p.amount)+'</strong></button>';
  }).join("");
 
  const allOutflows=s.monthly.reduce((sum,x)=>sum+(x.kind==="expense"?x.amount:x.kind==="payment"&&amountClass(x)==="negative"?x.amount:0),0);
