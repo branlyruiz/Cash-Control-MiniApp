@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1,viewport-fit=cover"/>
-<meta name="theme-color" content="#111827"/>
+<meta name="theme-color" content="#f4f6f5"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
 <meta name="apple-mobile-web-app-title" content="Cash Control"/>
@@ -11,40 +11,32 @@
 <link rel="manifest" href="./manifest.webmanifest"/>
 <link rel="icon" href="./icon.svg?v=10" type="image/svg+xml"/>
 <link rel="apple-touch-icon" href="./icon-180.png?v=10"/>
-<link rel="stylesheet" href="./styles.css?v=16.2"/>
+<link rel="stylesheet" href="./styles.css?v=17"/>
 <title>Cash Control · BRANLY RUIZ</title>
-<script defer src="./app.js?v=16.2"></script>
+<script defer src="./motion.js?v=17"></script>
+<script defer src="./experience.js?v=17"></script>
+<script defer src="./app.js?v=17"></script>
 </head>
 <body>
 <div class="app">
 <header class="top"><div class="brand"><div class="brand-mark brand-logo" aria-label="Cash Control"></div><div><p class="brand-kicker">BRANLY RUIZ</p><h1>Cash Control</h1></div></div><button class="icon-button" id="settingsButton" type="button" aria-label="Configuración">⚙</button></header>
-<main>
+<main id="appMain" aria-busy="true">
+<div id="startupLoading" class="startup-loading" role="status"><span class="skeleton"></span><span class="skeleton large"></span><span class="skeleton"></span><p>Cargando tus movimientos…</p></div>
 <section id="dashboardView" class="view active">
- <div class="period-row"><div><p class="eyebrow">RESUMEN FINANCIERO</p><h2 id="periodLabel">Noviembre 2026</h2></div><div class="period-controls"><button id="prevMonth" aria-label="Mes anterior" class="round-btn">‹</button><button id="nextMonth" aria-label="Mes siguiente" class="round-btn">›</button></div></div>
+ <div class="period-row"><div><p class="eyebrow">TU DINERO, EN ORDEN</p><h2>Tu resumen</h2><span id="periodLabel" class="period-label">Noviembre 2026</span></div><div class="period-controls"><button id="prevMonth" aria-label="Mes anterior" class="round-btn">‹</button><button id="nextMonth" aria-label="Mes siguiente" class="round-btn">›</button></div></div>
  <article class="balance-card dashboard-link" data-home-target="balance" role="button" tabindex="0" aria-label="Abrir balance mensual"><div class="balance-top"><span>Disponible total</span><span class="month-chip" id="balanceMonth">Nov 2026</span></div><div class="balance-value" id="totalBalance">$ 0</div><div class="account-grid"><div><span>Cuenta digital</span><strong id="digitalBalance">$ 0</strong></div><div><span>Efectivo</span><strong id="cashBalance">$ 0</strong></div></div></article>
- <section class="fixed-alerts hidden compact-priority" id="fixedAlerts" aria-label="Tres pagos fijos más urgentes"><div class="alert-heading"><strong>Pagos fijos prioritarios</strong><button type="button" class="text-button" id="openAllFixed">Ver todos</button></div><div id="alertItems" class="compact-priority-list"></div></section>
- <div class="metric-grid compact-metrics"><button type="button" class="metric metric-button" data-home-category="income"><div class="metric-icon incoming">↙</div><span>Entradas del mes</span><strong id="incomeTotal">$ 0</strong></button><button type="button" class="metric metric-button" data-home-category="variable"><div class="metric-icon outgoing">↗</div><span>Gastos variables</span><strong id="expenseTotal">$ 0</strong></button></div>
- <div class="metric-grid fixed-metrics compact-metrics"><button type="button" class="metric metric-button" data-home-category="fixed"><div class="metric-icon outgoing">◷</div><span>Gastos fijos pagados</span><strong id="fixedPaid">$ 0</strong></button><button type="button" class="metric metric-button" data-home-category="payable"><div class="metric-icon outgoing">▤</div><span>Deudas en contra</span><strong id="payableHome">$ 0</strong></button></div>
- <section class="home-data-card" id="cashflowCard" aria-label="Gráfico circular ingresos y egresos">
- <div class="home-card-head"><div><span class="eyebrow">FLUJO MENSUAL</span><h3>Ingresos vs. egresos</h3></div><button type="button" class="text-button" data-home-target="balance">Ver balance</button></div>
- <div class="cashflow-display"><div id="cashflowDonut" class="cashflow-donut" role="img" aria-label="Gráfico circular de ingresos y egresos"><div class="cashflow-center"><small>Movimientos</small><strong id="cashflowTotal">$ 0</strong></div></div>
- <div class="cashflow-legend"><button type="button" data-home-category="income"><span class="legend-dot legend-green"></span><span>Ingresos</span><strong id="chartIncome">$ 0</strong></button><button type="button" data-home-target="balance"><span class="legend-dot legend-coral"></span><span>Egresos</span><strong id="chartExpense">$ 0</strong></button></div></div>
-</section>
-<section class="home-data-card" id="variableBarsCard" aria-label="Gastos variables por categoría">
- <div class="home-card-head"><div><span class="eyebrow">GASTOS POR CONCEPTO</span><h3>Gastos variables</h3></div><button type="button" class="text-button" data-home-category="variable">Ver todos</button></div>
- <div class="home-bars" id="variableCategoryBars"></div>
-</section>
-<section class="home-data-card" id="debtReminderCard" aria-label="Recordatorio de deudas por pagar">
- <div class="home-card-head"><div><span class="eyebrow">RECORDATORIO</span><h3>Deudas en contra</h3></div><button type="button" class="text-button" data-home-category="payable">Ver deudas</button></div>
- <div class="home-debt-total"><small>Total pendiente</small><strong id="reminderDebtTotal">$ 0</strong></div>
- <div class="home-debt-rows" id="reminderDebtRows"></div>
-</section>
- <div class="section-title"><h3>Últimos movimientos</h3><div class="section-actions"><button class="text-button" id="undoLatest">↶ Deshacer último</button><button class="text-button" data-nav="movements">Ver todos</button></div></div><section class="panel activity" id="recentTransactions"></section>
+ <section class="fixed-alerts hidden compact-priority" id="fixedAlerts" aria-label="Tres pagos fijos más urgentes"><div class="alert-heading"><strong>Pagos prioritarios</strong><button type="button" class="text-button" id="openAllFixed">Ver todos</button></div><div id="alertItems" class="compact-priority-list"></div></section>
+ <div class="metric-grid compact-metrics"><button type="button" class="metric metric-button" data-home-category="income"><div class="metric-icon incoming">↙</div><span>Entradas del mes</span><strong id="incomeTotal">$ 0</strong></button><button type="button" class="metric metric-button" data-home-target="balance"><div class="metric-icon outgoing">↗</div><span>Salidas del mes</span><strong id="outflowTotal">$ 0</strong></button></div>
+
+ 
+
+
+ <div class="section-title"><h3>Últimos movimientos</h3><div class="section-actions"><button class="text-button" data-nav="movements">Ver todos</button></div></div><section class="panel activity" id="recentTransactions"></section><p class="local-note">Tu información se guarda en este dispositivo</p>
 </section>
 <section id="movementsView" class="view">
  <div class="page-heading"><p class="eyebrow">TU HISTORIAL</p><h2>Movimientos</h2><p>Ingresos, gastos, transferencias y abonos.</p></div>
- <div class="filterbar"><label for="filterKind">Filtrar</label><select id="filterKind"><option value="all">Todos</option><option value="fixed">Gastos fijos</option><option value="variable">Gastos variables</option><option value="income">Ingresos</option><option value="expense">Gastos</option><option value="transfer">Transferencias</option><option value="payment">Abonos</option></select></div>
- <section class="panel activity" id="allTransactions"></section>
+ <label class="search-field">Buscar movimientos<input type="search" id="movementSearch" placeholder="Buscar un concepto"/></label><div class="filterbar"><label for="filterKind">Filtrar</label><select id="filterKind"><option value="all">Todos</option><option value="fixed">Gastos fijos</option><option value="variable">Gastos variables</option><option value="income">Ingresos</option><option value="expense">Gastos</option><option value="transfer">Transferencias</option><option value="payment">Abonos</option></select></div>
+ <section class="panel activity" id="allTransactions"></section><div class="section-actions history-actions"><button class="text-button" id="undoLatest">Deshacer último</button><button class="text-button" id="toggleRowActions">Acciones rápidas</button></div>
 </section>
 <section id="debtsView" class="view">
  <div class="page-heading debt-page-heading"><div><p class="eyebrow">SALDOS PENDIENTES</p><h2>Deudas</h2></div><button class="text-button" id="newDebtBtn">+ Nueva deuda</button></div>
@@ -67,15 +59,29 @@
   <div class="section-title" id="categoryListCaption"><h3 id="categoryListTitle">Valores por concepto</h3><div class="section-actions"><strong class="hidden" id="debtCategoryTotal">$ 0</strong><button type="button" class="text-button hidden" id="newVariableCategory">+ Categoría</button><button type="button" class="text-button" id="categoryAddBtn">+ Movimiento</button></div></div>
   <section class="panel concept-list" id="categoryRows" aria-label="Conceptos y valores"></section>
 </section>
-<section id="balanceView" class="view">
+<section id="balanceView" class="view"><span id="expenseTotal" hidden></span>
   <div class="page-heading"><p class="eyebrow">BALANCE MENSUAL</p><h2 id="balanceHeading">Balance</h2><p id="balanceDescription">Consulta el detalle de ingresos, salidas y saldos entre cuentas.</p></div>
   <article class="balance-card"><div class="balance-top"><span>Disponible al cierre</span><span id="balancePeriodChip">Noviembre 2026</span></div><div class="balance-value" id="balanceClosing">$ 0</div><div class="account-grid"><div><span>Digital</span><strong id="balanceDigital">$ 0</strong></div><div><span>Efectivo</span><strong id="balanceCash">$ 0</strong></div></div></article>
-  <div class="section-title"><h3>Resumen del período</h3></div><section class="panel summary-lines" id="balanceLines"></section>
+   <div class="metric-grid fixed-metrics compact-metrics"><button type="button" class="metric metric-button" data-home-category="fixed"><div class="metric-icon outgoing">◷</div><span>Gastos fijos pagados</span><strong id="fixedPaid">$ 0</strong></button><button type="button" class="metric metric-button" data-home-category="payable"><div class="metric-icon outgoing">▤</div><span>Deudas en contra</span><strong id="payableHome">$ 0</strong></button></div>
+<section class="home-data-card" id="cashflowCard" aria-label="Gráfico circular ingresos y egresos">
+ <div class="home-card-head"><div><span class="eyebrow">FLUJO MENSUAL</span><h3>Ingresos vs. egresos</h3></div><button type="button" class="text-button" data-home-target="balance">Ver balance</button></div>
+ <div class="cashflow-display"><div id="cashflowDonut" class="cashflow-donut" role="img" aria-label="Gráfico circular de ingresos y egresos"><div class="cashflow-center"><small>Movimientos</small><strong id="cashflowTotal">$ 0</strong></div></div>
+ <div class="cashflow-legend"><button type="button" data-home-category="income"><span class="legend-dot legend-green"></span><span>Ingresos</span><strong id="chartIncome">$ 0</strong></button><button type="button" data-home-target="balance"><span class="legend-dot legend-coral"></span><span>Egresos</span><strong id="chartExpense">$ 0</strong></button></div></div>
+</section>
+<div class="section-title"><h3>Resumen del período</h3></div><section class="panel summary-lines" id="balanceLines"></section>
   <div class="section-title"><h3>Flujo del dinero</h3></div><section class="panel category-summary" id="balanceFlow"></section>
   <div class="section-title"><h3>Gastos fijos</h3></div><section class="panel summary-lines" id="balanceFixed"></section>
-</section>
+<section class="home-data-card" id="variableBarsCard" aria-label="Gastos variables por categoría">
+ <div class="home-card-head"><div><span class="eyebrow">GASTOS POR CONCEPTO</span><h3>Gastos variables</h3></div><button type="button" class="text-button" data-home-category="variable">Ver todos</button></div>
+ <div class="home-bars" id="variableCategoryBars"></div>
+</section><section class="home-data-card" id="debtReminderCard" aria-label="Recordatorio de deudas por pagar">
+ <div class="home-card-head"><div><span class="eyebrow">RECORDATORIO</span><h3>Deudas en contra</h3></div><button type="button" class="text-button" data-home-category="payable">Ver deudas</button></div>
+ <div class="home-debt-total"><small>Total pendiente</small><strong id="reminderDebtTotal">$ 0</strong></div>
+ <div class="home-debt-rows" id="reminderDebtRows"></div>
+</section></section>
 <section id="settingsView" class="view">
  <div class="page-heading"><p class="eyebrow">DATOS EN ESTE DISPOSITIVO</p><h2>Configuración</h2><p>Todo se guarda localmente en este navegador. No hay cuenta ni sincronización en la nube.</p></div>
+ <button class="sheet-item" type="button" data-sheet-nav="preferences"><span class="sheet-icon" data-ui-icon="sun"></span><span class="sheet-copy"><strong>Preferencias</strong><small>Apariencia y movimiento</small></span><span class="sheet-chevron">›</span></button>
  <section class="panel settings-panel">
   <div class="settings-item"><div><strong>Copia de seguridad completa</strong><p>Exporta un archivo JSON para restaurar movimientos y deudas en otro dispositivo.</p></div><button class="small-action" id="exportBackup">Exportar</button></div>
   <div class="settings-item"><div><strong>Restaurar copia</strong><p>Reemplaza los registros de este dispositivo con los del archivo elegido.</p></div><button class="small-action" id="importBackup">Importar</button><input type="file" id="backupFile" accept=".json,application/json" hidden/></div>
@@ -84,24 +90,26 @@
  </section>
  <p class="small-note">Inicio contable: 1 de noviembre de 2026. Los saldos comienzan en $0 y se calculan a partir de tus registros. La eliminación de datos del navegador puede borrar la información guardada.</p>
 </section>
+<section id="moreView" class="view"><div class="page-heading"><p class="eyebrow">TU ESPACIO</p><h2>Más</h2></div><section id="moreSheet" class="more-content">
+ 
+ <button class="sheet-item" type="button" data-sheet-nav="balance"><span class="sheet-icon"><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h18M3 12h18M3 17h18"/><path d="M7 4v16M17 4v16"/></svg></span><span class="sheet-copy"><strong>Balance</strong><small>Resumen financiero mensual</small></span><span class="sheet-chevron">›</span></button>
+ <button class="sheet-item" type="button" data-sheet-nav="debts"><span class="sheet-icon"><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></span><span class="sheet-copy"><strong>Deudas</strong><small>Por cobrar, por pagar y abonos</small></span><span class="sheet-chevron">›</span></button>
+ <button class="sheet-item" type="button" data-sheet-nav="settings"><span class="sheet-icon"><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.08.08-2.08 2.08-.08-.08A1.7 1.7 0 0 0 15.8 18.6l-.2.08V21h-3.2v-2.32a1.7 1.7 0 0 0-1.83-.35l-.14.07-1.64 1.64-2.26-2.26L8.17 16a1.7 1.7 0 0 0-.36-1.8L7.7 14H5.4v-3.2h2.3a1.7 1.7 0 0 0 .35-1.83l-.08-.17-1.62-1.62 2.26-2.26 1.62 1.62A1.7 1.7 0 0 0 12 6.2V4h3.2v2.2a1.7 1.7 0 0 0 1.84.35l.15-.08 1.64-1.64 2.26 2.26-1.64 1.64a1.7 1.7 0 0 0-.35 1.83l.08.16H21v3.2h-1.8Z" transform="translate(-1 -1) scale(.96)"/></svg></span><span class="sheet-copy"><strong>Configuración</strong><small>Preferencias y datos locales</small></span><span class="sheet-chevron">›</span></button>
+ <button class="sheet-close hidden" id="closeMoreMenu" type="button">Cerrar</button>
+<button type="button" class="sheet-item" id="openTransfer"><span class="sheet-icon" data-ui-icon="transfer"></span><span class="sheet-copy"><strong>Transferir entre cuentas</strong><small>Digital y efectivo</small></span><span class="sheet-chevron">›</span></button></section><p class="local-note">Tus datos se guardan en este dispositivo · V17</p></section><section id="preferencesView" class="view"><div class="page-heading"><h2>Preferencias</h2></div><h3>Apariencia</h3><p class="small-note">Elige el fondo que te resulte más cómodo.</p><div class="theme-options" role="group" aria-label="Apariencia"><button data-theme-choice="light" aria-pressed="false">Claro</button><button data-theme-choice="dark" aria-pressed="false">Oscuro</button><button data-theme-choice="system" aria-pressed="true">Sistema</button></div><section class="panel settings-panel"><label class="settings-item" for="reduceMotion"><span><strong>Reducir movimiento</strong><span class="small-note">Siempre se respeta la preferencia del sistema.</span></span><input id="reduceMotion" type="checkbox" class="ui-switch"/></label></section></section>
+<section id="detailView" class="view"><div class="page-heading"><h2>Detalle del movimiento</h2></div><div id="movementDetail"></div></section>
 </main>
 <nav class="bottom-dock" aria-label="Navegación principal">
- <div class="dock-pill">
+ <div class="dock-pill"><span class="dock-indicator" aria-hidden="true"></span>
   <button type="button" data-nav="dashboard" class="dock-item active" aria-label="Inicio" aria-current="page"><span class="dock-icon"><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1Z"/></svg></span></button>
   <button type="button" data-nav="movements" class="dock-item" aria-label="Movimientos"><span class="dock-icon"><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16m0 0-4-4m4 4-4 4M20 17H4m0 0 4-4m-4 4 4 4"/></svg></span></button>
   <button type="button" data-nav="categories" class="dock-item" aria-label="Categorías"><span class="dock-icon"><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span></button>
-  <button type="button" id="openMoreMenu" class="dock-item" aria-label="Más secciones" aria-expanded="false"><span class="dock-icon"><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="19" cy="12" r="1.2"/></svg></span></button>
+  <button type="button" id="openMoreMenu" class="dock-item" aria-label="Más"><span class="dock-icon"><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="19" cy="12" r="1.2"/></svg></span></button>
  </div>
  <button type="button" id="fab" class="dock-fab" aria-label="Nuevo movimiento">+</button>
 </nav>
 <div id="sheetBackdrop" class="sheet-backdrop hidden"></div>
-<section id="moreSheet" class="more-sheet hidden" aria-label="Más secciones" role="dialog" aria-modal="true" tabindex="-1">
- <div class="sheet-handle"></div><h3>Más secciones</h3>
- <button class="sheet-item" type="button" data-sheet-nav="balance"><span class="sheet-icon"><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h18M3 12h18M3 17h18"/><path d="M7 4v16M17 4v16"/></svg></span><span class="sheet-copy"><strong>Balance</strong><small>Resumen financiero mensual</small></span><span class="sheet-chevron">›</span></button>
- <button class="sheet-item" type="button" data-sheet-nav="debts"><span class="sheet-icon"><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></span><span class="sheet-copy"><strong>Deudas</strong><small>Por cobrar, por pagar y abonos</small></span><span class="sheet-chevron">›</span></button>
- <button class="sheet-item" type="button" data-sheet-nav="settings"><span class="sheet-icon"><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.08.08-2.08 2.08-.08-.08A1.7 1.7 0 0 0 15.8 18.6l-.2.08V21h-3.2v-2.32a1.7 1.7 0 0 0-1.83-.35l-.14.07-1.64 1.64-2.26-2.26L8.17 16a1.7 1.7 0 0 0-.36-1.8L7.7 14H5.4v-3.2h2.3a1.7 1.7 0 0 0 .35-1.83l-.08-.17-1.62-1.62 2.26-2.26 1.62 1.62A1.7 1.7 0 0 0 12 6.2V4h3.2v2.2a1.7 1.7 0 0 0 1.84.35l.15-.08 1.64-1.64 2.26 2.26-1.64 1.64a1.7 1.7 0 0 0-.35 1.83l.08.16H21v3.2h-1.8Z" transform="translate(-1 -1) scale(.96)"/></svg></span><span class="sheet-copy"><strong>Ajustes</strong><small>Copias de seguridad y datos locales</small></span><span class="sheet-chevron">›</span></button>
- <button class="sheet-close" id="closeMoreMenu" type="button">Cerrar</button>
-</section>
+
 </div>
 <dialog id="entryDialog" class="entry-dialog movement-sheet" aria-labelledby="dialogTitle"><form id="entryForm" method="dialog" novalidate>
 <div class="sheet-grabber" aria-hidden="true"></div>
