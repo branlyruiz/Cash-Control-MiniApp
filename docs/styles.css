@@ -23,3 +23,15 @@ html[data-reduce=true] *,html[data-reduce=true] *::before,html[data-reduce=true]
 #dashboardView .priority-day{width:34px;height:34px;border-radius:10px;background:var(--variable-soft);color:var(--variable);font-weight:700;font-variant-numeric:tabular-nums}
 #dashboardView .priority-name{line-height:1.3}
 #dashboardView .priority-amount{font-variant-numeric:tabular-nums}
+
+/* Fixed expenses: compact individual cards with explicit action controls. */
+#categoriesView .fixed-category-list{display:grid;gap:8px;padding:0;border:0;background:transparent;overflow:visible}
+#categoriesView .fixed-category-row{grid-template-columns:32px minmax(0,1fr) auto;grid-template-areas:"avatar detail amount" "avatar detail actions";gap:4px 10px;padding:10px 12px;border:1px solid var(--line);border-radius:16px;background:var(--surface);align-items:center}
+#categoriesView .fixed-category-avatar{grid-area:avatar;width:32px;height:32px;border-radius:11px}
+#categoriesView .fixed-category-detail{grid-area:detail;min-width:0;align-self:center}
+#categoriesView .fixed-category-detail small{margin-top:3px;line-height:1.4}
+#categoriesView .fixed-category-amount{grid-area:amount;text-align:right;font-variant-numeric:tabular-nums}
+#categoriesView .fixed-category-actions{grid-area:actions;display:flex;gap:6px;justify-self:end}
+#categoriesView .fixed-category-actions button{display:grid;place-items:center;width:44px;height:44px;padding:0;border-radius:12px;background:var(--fixed-soft);color:var(--fixed);border:1px solid var(--line)}
+#categoriesView .fixed-category-actions button:last-child{background:var(--surface2);color:var(--muted)}
+#categoriesView .fixed-category-actions svg{width:18px;height:18px}

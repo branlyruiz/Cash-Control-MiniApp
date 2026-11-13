@@ -295,8 +295,8 @@ function fixedCategoryRowHtml(row){
   </button>
   <strong class="fixed-category-amount">${money(row.amount)}</strong>
   <div class="fixed-category-actions">
-   <button type="button" ${edit}="${id}" aria-label="Editar ${label}">Editar</button>
-   <button type="button" ${remove}="${id}" aria-label="Eliminar ${label}">Eliminar</button>
+   <button type="button" ${edit}="${id}" aria-label="Editar ${label}" title="Editar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m15 5 4 4M4 20l4-1L20 7a2.8 2.8 0 0 0-4-4L4 15z"/></svg></button>
+   <button type="button" ${remove}="${id}" aria-label="Eliminar ${label}" title="Eliminar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 10v7M14 10v7"/></svg></button>
   </div>
  </article>`;
 }
