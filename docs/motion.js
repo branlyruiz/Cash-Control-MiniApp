@@ -2,14 +2,19 @@
 window.Motion = (() => {
  const timings = {micro:160, content:220, modal:280};
  const curves = {enter:'cubic-bezier(.2,.8,.2,1)', exit:'cubic-bezier(.4,0,1,1)', settle:'cubic-bezier(.2,.85,.25,1)'};
- const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches || document.documentElement.dataset.reduce === 'true';
+ const reduced = () =>  matchMedia('(prefers-reduced-motion: reduce)').matches || document.documentElement.dataset.reduce === 'true';
+ function categoryCards(root,back=false){
+  if(!root||reduced())return;
+  const visible=[...root.querySelectorAll('.concept-card,.fixed-category-row,.debt-receivable-row')].filter(el=>{const r=el.getBoundingClientRect();return r.height>0&&r.bottom>0&&r.top<window.innerHeight});
+  visible.forEach((el,index)=>navigation(el,back,Math.min(index*24,120)));
+ }
  function run(el,frames,duration=timings.content,easing=curves.enter){if(!el||reduced())return Promise.resolve();return el.animate(frames,{duration,easing}).finished.catch(()=>{})}
  const navigationAnimations=new Map();
  function stopNavigation(){for(const a of navigationAnimations.values())a.cancel();navigationAnimations.clear()}
- function navigation(el,back=false){
+ function navigation(el,back=false,delay=0){
   if(!el||reduced())return;
   const old=navigationAnimations.get(el);if(old)old.cancel();
-  const animation=el.animate([{opacity:.5,transform:`translateX(${back?-12:12}px)`},{opacity:1,transform:'translateX(0)'}],{duration:260,easing:'ease-out'});
+  const animation=el.animate([{opacity:.5,transform:`translateX(${back?-12:12}px)`},{opacity:1,transform:'translateX(0)'}],{duration:260,easing:'ease-out',delay,fill:'backwards'});
   navigationAnimations.set(el,animation);
   animation.finished.catch(()=>{}).finally(()=>{if(navigationAnimations.get(el)===animation)navigationAnimations.delete(el)});
  }
@@ -40,5 +45,5 @@ window.Motion = (() => {
  function capture(root){return new Map([...root.querySelectorAll('[data-row-id]')].map(e=>[e.dataset.rowId,e.getBoundingClientRect().top]))}
  function reorder(root,before){root.querySelectorAll('[data-row-id]').forEach(el=>{const y=before.get(el.dataset.rowId);if(y!==undefined)run(el,[{transform:`translateY(${y-el.getBoundingClientRect().top}px)`},{transform:'translateY(0)'}],240,curves.settle)})}
  function expand(el){return run(el,[{opacity:0,transform:'translateY(-4px)'},{opacity:1,transform:'translateY(0)'}],200)}
- return {navigation,stopNavigation,counter,finishCounters,timings,curves,reduced,run,page,sheet,numbers,chart,capture,reorder,expand};
+ return {categoryCards,navigation,stopNavigation,counter,finishCounters,timings,curves,reduced,run,page,sheet,numbers,chart,capture,reorder,expand};
 })();
