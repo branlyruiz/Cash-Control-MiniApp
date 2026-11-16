@@ -24,7 +24,12 @@ window.CashUI=(()=>{
  }
  function navigate(name,id){
   if(!ready)return;storePosition();const tab=tabs.includes(name);
-  if(tab){if(active===name)return;const direction=tabs.indexOf(name)>tabs.indexOf(active)?'forward':'back';active=name;paint(direction);}else{if(state().name!==name||state().id!==id)routes[active].push({name,id,scroll:0});paint('forward')}
+  if(tab){if(active===name){
+   Motion.stopNavigation();
+   if(routes[active].length>1){routes[active]=[routes[active][0]];routes[active][0].scroll=0;paint('back')}
+   else{state().scroll=0;config.onView?.(name);window.scrollTo({top:0,behavior:Motion.reduced()?'instant':'smooth'})}
+   persistNav(true);return;
+  }const direction=tabs.indexOf(name)>tabs.indexOf(active)?'forward':'back';active=name;paint(direction);}else{if(state().name!==name||state().id!==id)routes[active].push({name,id,scroll:0});paint('forward')}
   persistNav();
  }
  function back(){if(routes[active].length<2)return;routes[active].pop();paint('back');persistNav(true);const f=state().focus;if(f)$(f)?.focus({preventScroll:true})}
