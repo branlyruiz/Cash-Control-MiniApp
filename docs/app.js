@@ -246,6 +246,7 @@ async function importBackup(file){try{if(!file)return;if(file.size>20*1024*1024)
 async function eraseAll(){if(!confirm("¿Eliminar TODOS los movimientos, deudas y abonos de ESTE dispositivo?"))return;if(!confirm("Confirmación final: los datos no se pueden recuperar sin una copia JSON."))return;await transaction("readwrite",store=>store.clear());month=(nowBogota().slice(0,7) < FIRST_MONTH ? FIRST_MONTH : nowBogota().slice(0,7));await seedVariableCategories();await refresh();showToast("Movimientos eliminados y categorías iniciales disponibles.")}
 
 /* FUNCIONES AVANZADAS · edición local independiente */
+const categoryPositions=new Map();
 let categoryKind="income",conceptSelection=null,fixedEditing=null,quickPayPlanId=null,quickPaySaving=false;
 const categoryNames={income:"Ingresos",variable:"Gastos variables",fixed:"Gastos fijos",receivable:"Deudas a favor",payable:"Deudas en contra"};
 const categoryColors=["#65bda0","#eead80","#8b9dcc","#b9a0d8","#d77d75","#a3bb6f","#5f97ae"];
@@ -558,7 +559,7 @@ function enhancedBind(){
   button.addEventListener("click",go);
   if(button.getAttribute("role")==="button")button.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();go()}});
  });
- $("categoryTabs").addEventListener("click",e=>{const b=e.target.closest("[data-category]");if(b){categoryKind=b.dataset.category;render()}});
+ $("categoryTabs").addEventListener("click",e=>{const b=e.target.closest("[data-category]");if(b&&b.dataset.category!==categoryKind){const order=["income","variable","fixed","receivable","payable"],previous=categoryKind;categoryPositions.set(previous,window.scrollY);UI&&globalThis.Motion.stopNavigation();categoryKind=b.dataset.category;render();window.scrollTo({top:categoryPositions.get(categoryKind)||0,behavior:"instant"});if(UI)["categoryMetrics","categoryListCaption","categoryRows"].forEach(id=>globalThis.Motion.navigation($(id),order.indexOf(categoryKind)<order.indexOf(previous)))}});
  $("categoryAddBtn").addEventListener("click",()=>{if(categoryKind==="fixed")openFixed();else if(categoryKind==="receivable"||categoryKind==="payable"){openForm("debt");$("entryDirection").value=categoryKind;adjustForm();}else openForm(categoryKind==="income"?"income":"expense");if(categoryKind==="variable"){$("expenseClass").value="variable";addOptions()}});
  $("fixedForm").addEventListener("submit",saveFixed);
  $("closeFixedDialog").addEventListener("click",()=>$("fixedDialog").close());

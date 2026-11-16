@@ -47,3 +47,7 @@ html[data-reduce=true] *,html[data-reduce=true] *::before,html[data-reduce=true]
 #categoriesView:is([data-category=variable],[data-category=income]) .concept-chevron{font-size:20px;color:var(--muted)}
 #categoriesView:is([data-category=variable],[data-category=income]) #categoryListCaption{flex-wrap:wrap;gap:4px}
 #categoriesView:is([data-category=variable],[data-category=income]) #categoryListCaption .section-actions{margin-left:auto}
+
+/* Navigation timing shared with KUUMI; slots keep their geometry. */
+.dock-indicator{transition:transform 260ms ease-out}
+.category-tab{transition:background-color 260ms ease-out,border-color 260ms ease-out,color 260ms ease-out,transform 160ms ease-out}

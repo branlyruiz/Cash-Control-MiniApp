@@ -12,6 +12,7 @@ window.CashUI=(()=>{
  const snapshot=()=>({cashUI:true,active,routes:JSON.parse(JSON.stringify(routes))});
  function persistNav(replace=false){try{history[replace?'replaceState':'pushState'](snapshot(),'')}catch{}}
  function paint(direction=''){
+  Motion.stopNavigation();
   const route=state();all('.view').forEach(el=>el.classList.toggle('active',el.id===route.name+'View'));
   config.onView?.(route.name);const page=$(route.name+'View');
   if(route.name==='detail')config.detail?.(route.id);
@@ -19,11 +20,11 @@ window.CashUI=(()=>{
   document.querySelector('.dock-indicator').style.transform='translateX('+tabs.indexOf(active)*100+'%)';
   all('.ui-back').forEach(b=>b.hidden=true);if(page&&routes[active].length>1)page.querySelector('.ui-back').hidden=false;
   window.scrollTo({top:route.scroll||0,behavior:'instant'});
-  if(direction){Motion.page(page,direction==='back');page?.querySelector('h2')?.focus({preventScroll:true})}
+  if(direction){Motion.navigation(page,direction==='back');page?.querySelector('h2')?.focus({preventScroll:true})}
  }
  function navigate(name,id){
   if(!ready)return;storePosition();const tab=tabs.includes(name);
-  if(tab){active=name;paint();}else{if(state().name!==name||state().id!==id)routes[active].push({name,id,scroll:0});paint('forward')}
+  if(tab){if(active===name)return;const direction=tabs.indexOf(name)>tabs.indexOf(active)?'forward':'back';active=name;paint(direction);}else{if(state().name!==name||state().id!==id)routes[active].push({name,id,scroll:0});paint('forward')}
   persistNav();
  }
  function back(){if(routes[active].length<2)return;routes[active].pop();paint('back');persistNav(true);const f=state().focus;if(f)$(f)?.focus({preventScroll:true})}
