@@ -77,3 +77,7 @@ html[data-reduce=true] *,html[data-reduce=true] *::before,html[data-reduce=true]
 .category-tab[data-category=payable],.transaction-icon.payable,.debt-tone-payable .debt-avatar{background:#f4d969;color:#584515}
 .category-tab[data-category=receivable],.transaction-icon.receivable,.debt-tone-receivable .debt-avatar{background:#a6dddd;color:#23575b}
 @media(max-width:359px){.category-tab{gap:3px}.category-symbol svg{width:14px;height:14px}}
+
+/* Movement icons match the income/expense summary cards; shapes stay unchanged. */
+.transaction-icon.income{background:#a3e4bf;color:#153c30}
+.transaction-icon.variable,.transaction-icon.fixed,.transaction-icon.expense{background:#ffb18e;color:#66301d}
