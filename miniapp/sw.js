@@ -1,5 +1,5 @@
-const CACHE="cash-control-br-local-2026-11-v17.10";
-const FILES=["./","./index.html","./styles.css?v=17.10","./app.js?v=17.10","./experience.js?v=17.10","./motion.js?v=17.10","./manifest.webmanifest","./icon.svg?v=10","./icon-180.png?v=10"];
+const CACHE="cash-control-br-local-2026-11-v17.11";
+const FILES=["./","./index.html","./styles.css?v=17.11","./app.js?v=17.11","./experience.js?v=17.11","./motion.js?v=17.11","./manifest.webmanifest","./icon.svg?v=10","./icon-180.png?v=10"];
 self.addEventListener("install",event=>{event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(FILES)).then(()=>self.skipWaiting()))});
 self.addEventListener("activate",event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
 self.addEventListener("fetch",event=>{if(event.request.method!=="GET"||new URL(event.request.url).origin!==self.location.origin)return;

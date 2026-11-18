@@ -56,6 +56,7 @@ window.CashUI=(()=>{
  function afterRender(){if(!ready)return;if(state().name==='detail')config.detail?.(state().id);
   all('[data-ui-number]').forEach(e=>{if(e.closest('.view.active')&&oldNumbers.has(e.id)&&oldNumbers.get(e.id)!==e.textContent)(['totalBalance','digitalBalance','cashBalance'].includes(e.id)?Motion.counter(e,oldNumbers.get(e.id)):Motion.numbers(e))});
   Motion.reorder(document.querySelector('.view.active'),oldRows);
+  all('.concept-avatar,.fixed-category-avatar,.debt-avatar').forEach(e=>{const category=e.closest('#categoriesView')?.dataset.category;const kind=category|| (e.closest('.debt-tone-receivable')?'receivable':'payable');e.innerHTML=icon(({income:'income',variable:'expense',fixed:'fixed',receivable:'debt',payable:'debt'})[kind]||'debt')});
   all('.transaction-icon[data-icon]').forEach(e=>e.innerHTML=icon(e.dataset.icon));
   all('.empty-small').forEach(el=>{if(!el.querySelector('svg')){const span=document.createElement('span');span.className='empty-icon';span.innerHTML=icon('wallet');el.prepend(span)}});
   all('.view.active .bar-fill').forEach(e=>Motion.chart(e));
@@ -70,6 +71,7 @@ window.CashUI=(()=>{
   matchMedia('(prefers-color-scheme:dark)').addEventListener('change',settings);
   $('settingsButton').innerHTML=icon('sun');$('fab').innerHTML=icon('plus');all('.close').forEach(b=>b.innerHTML=icon('close'));all('[data-ui-icon]').forEach(e=>e.innerHTML=icon(e.dataset.uiIcon));
   all('[data-entry-kind]').forEach(b=>{const span=b.querySelector('span');b.innerHTML=icon(b.dataset.entryKind)+(span?span.outerHTML:'')});
+  all('.category-tab').forEach(e=>{const mark=document.createElement('span');mark.className='category-symbol';mark.setAttribute('aria-hidden','true');mark.innerHTML=icon(({income:'income',variable:'expense',fixed:'fixed',receivable:'debt',payable:'debt'})[e.dataset.category]);e.prepend(mark)});
   all('.metric-icon').forEach(e=>e.innerHTML=icon(({income:'income',variable:'expense',fixed:'fixed',payable:'debt'})[e.closest('[data-home-category]')?.dataset.homeCategory]||(e.classList.contains('incoming')?'income':'expense')));
   $('openTransfer').onclick=config.transfer;
   $('toggleRowActions').onclick=()=>{all('.transaction-swipe').forEach(el=>{el.classList.toggle('actions-open');el.querySelector('.quick-actions').inert=!el.classList.contains('actions-open')})};

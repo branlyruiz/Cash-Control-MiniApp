@@ -51,16 +51,18 @@ const income=monthly.reduce((s,x)=>s+(x.kind==="income"?x.amount:x.kind==="payme
 const expenses=monthly.reduce((s,x)=>s+(x.kind==="expense"?x.amount:x.kind==="payment"&&amountClass(x)==="negative"?x.amount:0),0);
 const groups={};for(const x of monthly){if(x.kind==="expense")groups[x.category||"Sin categoría"]=(groups[x.category||"Sin categoría"]||0)+x.amount}
 return {until,balances,income,expenses,monthly,groups}}
+function visualType(x){const debt=x.kind==='payment'?entries.find(d=>d.id===x.debtId):x;return x.kind==='expense'?(x.expenseClass==='fixed'?'fixed':'variable'):['debt','payment'].includes(x.kind)?(debt?.direction||'payable'):x.kind}
+function visualIcon(x){return ({variable:'expense',fixed:'fixed',income:'income',receivable:'debt',payable:'debt',transfer:'transfer'})[visualType(x)]||'payment'}
 function entryHtml(x,buttons=true){
- const icon={income:"income",expense:"expense",transfer:"transfer",debt:"debt",payment:"payment"}[x.kind];
- const cls=x.kind==="debt"?x.direction:x.kind;
+ const icon=visualIcon(x);
+ const cls=visualType(x);
  const row='<button type="button" class="transaction" data-detail="'+safe(x.id)+'" aria-label="Ver '+safe(recordTitle(x))+', '+safe(amountPrefix(x)+money(x.amount))+'"><span class="transaction-icon '+safe(cls)+'" data-icon="'+icon+'" aria-hidden="true"></span><span class="transaction-main"><strong class="transaction-name">'+safe(recordTitle(x))+'</strong><span class="transaction-date">'+niceDate(x.date,true)+' · '+safe(accountNames[x.account])+'</span></span><span class="transaction-amount '+amountClass(x)+'">'+amountPrefix(x)+money(x.amount)+'</span></button>';
  return buttons?'<div class="transaction-swipe"><div class="quick-actions" inert><button type="button" class="small-action" data-edit="'+safe(x.id)+'">Editar</button><button type="button" class="small-action danger" data-delete="'+safe(x.id)+'">Eliminar</button></div>'+row+'</div>':row;
 }
 function renderMovementDetail(id){
  const x=entries.find(x=>x.id===id),el=$("movementDetail");
  if(!x){el.innerHTML=empty("Este movimiento ya no está disponible.");return}
- el.innerHTML='<div class="detail-hero"><span class="transaction-icon '+safe(x.kind)+'">'+(UI?.icon(x.kind)||'')+'</span><h3>'+safe(recordTitle(x))+'</h3><strong class="detail-amount '+amountClass(x)+'">'+amountPrefix(x)+money(x.amount)+'</strong><span class="detail-tag">'+safe(kinds[x.kind])+(x.kind==="expense"?' · '+(x.expenseClass==="fixed"?'Gasto fijo':'Gasto variable'):'')+'</span></div><section class="panel summary-lines">'+
+ el.innerHTML='<div class="detail-hero"><span class="transaction-icon '+safe(visualType(x))+'">'+(UI?.icon(visualIcon(x))||'')+'</span><h3>'+safe(recordTitle(x))+'</h3><strong class="detail-amount '+amountClass(x)+'">'+amountPrefix(x)+money(x.amount)+'</strong><span class="detail-tag">'+safe(kinds[x.kind])+(x.kind==="expense"?' · '+(x.expenseClass==="fixed"?'Gasto fijo':'Gasto variable'):'')+'</span></div><section class="panel summary-lines">'+
  [['Fecha',niceDate(x.date)],['Cuenta',accountNames[x.account]],...(x.kind==="transfer"?[['Destino',accountNames[x.target]]]:[]),['Concepto',recordTitle(x)],['Nota',x.description||'Sin nota']].map(([label,value])=>'<div class="balance-line"><span>'+safe(label)+'</span><strong>'+safe(value)+'</strong></div>').join('')+'</section><div class="detail-actions"><button type="button" class="save-btn" data-edit="'+safe(id)+'">Editar</button><button type="button" class="small-action danger" data-delete="'+safe(id)+'">Eliminar</button></div>';
 }
 

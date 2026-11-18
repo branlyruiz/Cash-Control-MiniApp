@@ -65,3 +65,15 @@ html[data-reduce=true] *,html[data-reduce=true] *::before,html[data-reduce=true]
 #dashboardView .fixed-alerts .priority-day{background:#f4d969;color:#584515}
 :root[data-theme=dark] #dashboardView .fixed-alerts{background:#39331e;border-color:#81703b}
 :root[data-theme=dark] #dashboardView .fixed-alerts .alert-heading{color:#f4dfa0}
+
+/* Shared semantic tones across overview, category selectors and records. */
+:root{--income-soft:#a3e4bf;--variable-soft:#ffb18e;--fixed-soft:#c4b1fa;--payable-soft:#f4d969;--receivable-soft:#a6dddd}
+.category-tab{display:flex;align-items:center;justify-content:center;gap:6px}
+.category-symbol{display:grid;place-items:center}.category-symbol svg{width:16px;height:16px}
+#categoriesView .concept-avatar svg,.fixed-category-avatar svg,.debt-avatar svg{width:18px;height:18px}
+.category-tab[data-category=income],.transaction-icon.income,#categoriesView[data-category=income] .concept-avatar{background:#a3e4bf;color:#153c30}
+.category-tab[data-category=variable],.transaction-icon.variable,#categoriesView[data-category=variable] .concept-avatar{background:#ffb18e;color:#66301d}
+.category-tab[data-category=fixed],.transaction-icon.fixed,#categoriesView .fixed-category-avatar{background:#c4b1fa;color:#3f2b70}
+.category-tab[data-category=payable],.transaction-icon.payable,.debt-tone-payable .debt-avatar{background:#f4d969;color:#584515}
+.category-tab[data-category=receivable],.transaction-icon.receivable,.debt-tone-receivable .debt-avatar{background:#a6dddd;color:#23575b}
+@media(max-width:359px){.category-tab{gap:3px}.category-symbol svg{width:14px;height:14px}}
