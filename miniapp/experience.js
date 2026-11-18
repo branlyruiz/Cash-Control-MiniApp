@@ -2,7 +2,7 @@
 'use strict';
 window.CashUI=(()=>{
  const $=id=>document.getElementById(id),all=s=>[...document.querySelectorAll(s)];
- const paths={sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1 1m12 12 1 1M5 19l1-1M18 6l1-1"/>',back:'<path d="m14 5-7 7 7 7"/>',close:'<path d="m6 6 12 12M18 6 6 18"/>',income:'<path d="M18 6 6 18M6 7v11h11"/>',expense:'<path d="M6 18 18 6M7 6h11v11"/>',transfer:'<path d="M4 7h16m-4-4 4 4-4 4M20 17H4m4-4-4 4 4 4"/>',debt:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6m-6 4h6m-6 4h3"/>',payment:'<path d="m5 12 4 4L19 6"/>',wallet:'<rect x="3" y="5" width="18" height="15" rx="3"/><path d="M3 8h18m0 4h-6v4h6"/>',plus:'<path d="M12 5v14M5 12h14"/>'};
+ const paths={fixed:'<circle cx="12" cy="12" r="8"/><path d="M12 4v8h8"/>',sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1 1m12 12 1 1M5 19l1-1M18 6l1-1"/>',back:'<path d="m14 5-7 7 7 7"/>',close:'<path d="m6 6 12 12M18 6 6 18"/>',income:'<path d="M18 6 6 18M6 7v11h11"/>',expense:'<path d="M6 18 18 6M7 6h11v11"/>',transfer:'<path d="M4 7h16m-4-4 4 4-4 4M20 17H4m4-4-4 4 4 4"/>',debt:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6m-6 4h6m-6 4h3"/>',payment:'<path d="m5 12 4 4L19 6"/>',wallet:'<rect x="3" y="5" width="18" height="15" rx="3"/><path d="M3 8h18m0 4h-6v4h6"/>',plus:'<path d="M12 5v14M5 12h14"/>'};
  const icon=name=>'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(paths[name]||paths.debt)+'</svg>';
  const tabs=['dashboard','movements','categories','more'];
  let active='dashboard',routes=Object.fromEntries(tabs.map(t=>[t,[{name:t,scroll:0}]])),config={},ready=false,toastTimer,oldNumbers=new Map(),oldRows=new Map(),theme='system',reduce=false;
@@ -70,7 +70,7 @@ window.CashUI=(()=>{
   matchMedia('(prefers-color-scheme:dark)').addEventListener('change',settings);
   $('settingsButton').innerHTML=icon('sun');$('fab').innerHTML=icon('plus');all('.close').forEach(b=>b.innerHTML=icon('close'));all('[data-ui-icon]').forEach(e=>e.innerHTML=icon(e.dataset.uiIcon));
   all('[data-entry-kind]').forEach(b=>{const span=b.querySelector('span');b.innerHTML=icon(b.dataset.entryKind)+(span?span.outerHTML:'')});
-  all('.metric-icon').forEach(e=>e.innerHTML=icon(e.classList.contains('incoming')?'income':'expense'));
+  all('.metric-icon').forEach(e=>e.innerHTML=icon(({income:'income',variable:'expense',fixed:'fixed',payable:'debt'})[e.closest('[data-home-category]')?.dataset.homeCategory]||(e.classList.contains('incoming')?'income':'expense')));
   $('openTransfer').onclick=config.transfer;
   $('toggleRowActions').onclick=()=>{all('.transaction-swipe').forEach(el=>{el.classList.toggle('actions-open');el.querySelector('.quick-actions').inert=!el.classList.contains('actions-open')})};
   document.addEventListener('click',e=>{const b=e.target.closest('[data-detail]');if(b){navigate('detail',b.dataset.detail)}});
