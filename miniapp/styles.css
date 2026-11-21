@@ -88,8 +88,10 @@ html[data-reduce=true] *,html[data-reduce=true] *::before,html[data-reduce=true]
 #dashboardView #alertItems .priority-row{flex-shrink:0}
 :root[data-theme=dark] #dashboardView #alertItems{background:transparent;scrollbar-color:#c9ad59 transparent}
 
-/* Fixed-payment sheet uses the fixed-expense lilac identity. */
-#quickPayDialog{--brand:#604493;--brand-text:#fff;--ink:#292333;--muted:#6b6275;--line:#e4ddeb;--control:#93859f;--surface2:#f0eaf8}
+/* Fixed-payment sheet uses the expense coral identity, scoped to this dialog. */
+#quickPayDialog{--brand:#a14832;--brand-text:#fff;--ink:#33251f;--muted:#756258;--line:#ecddd5;--control:#9f8578;--surface2:#fff0e9}
 #quickPayDialog .dialog-head .eyebrow{color:var(--brand)}
 #quickPayDialog .quickpay-summary{background:var(--surface2);color:var(--ink);border-radius:12px;padding:12px}
-:root[data-theme=dark] #quickPayDialog{--brand:#c4b1fa;--brand-text:#30204e;--ink:#f2edf8;--muted:#beb2cb;--line:#4b4059;--control:#a395b4;--surface:#231e2c;--surface2:#352b45}
+:root[data-theme=dark] #quickPayDialog{--brand:#ffb18e;--brand-text:#66301d;--ink:#f8eee8;--muted:#cbb8ae;--line:#594439;--control:#b49b8d;--surface:#2c211c;--surface2:#432f29}
+
+#quickPayDialog .save-btn{background:#ffb18e;color:#66301d}
