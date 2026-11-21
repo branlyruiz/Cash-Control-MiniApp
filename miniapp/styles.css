@@ -87,3 +87,9 @@ html[data-reduce=true] *,html[data-reduce=true] *::before,html[data-reduce=true]
 #dashboardView #alertItems:focus-visible{outline:2px solid var(--brand);outline-offset:3px}
 #dashboardView #alertItems .priority-row{flex-shrink:0}
 :root[data-theme=dark] #dashboardView #alertItems{background:transparent;scrollbar-color:#c9ad59 transparent}
+
+/* Fixed-payment sheet uses the fixed-expense lilac identity. */
+#quickPayDialog{--brand:#604493;--brand-text:#fff;--ink:#292333;--muted:#6b6275;--line:#e4ddeb;--control:#93859f;--surface2:#f0eaf8}
+#quickPayDialog .dialog-head .eyebrow{color:var(--brand)}
+#quickPayDialog .quickpay-summary{background:var(--surface2);color:var(--ink);border-radius:12px;padding:12px}
+:root[data-theme=dark] #quickPayDialog{--brand:#c4b1fa;--brand-text:#30204e;--ink:#f2edf8;--muted:#beb2cb;--line:#4b4059;--control:#a395b4;--surface:#231e2c;--surface2:#352b45}
