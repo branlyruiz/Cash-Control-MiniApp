@@ -11,11 +11,11 @@
 <link rel="manifest" href="./manifest.webmanifest"/>
 <link rel="icon" href="./icon.svg?v=10" type="image/svg+xml"/>
 <link rel="apple-touch-icon" href="./icon-180.png?v=10"/>
-<link rel="stylesheet" href="./styles.css?v=17.12"/>
+<link rel="stylesheet" href="./styles.css?v=17.13"/>
 <title>Cash Control · BRANLY RUIZ</title>
-<script defer src="./motion.js?v=17.12"></script>
-<script defer src="./experience.js?v=17.12"></script>
-<script defer src="./app.js?v=17.12"></script>
+<script defer src="./motion.js?v=17.13"></script>
+<script defer src="./experience.js?v=17.13"></script>
+<script defer src="./app.js?v=17.13"></script>
 </head>
 <body>
 <div class="app">
@@ -25,7 +25,7 @@
 <section id="dashboardView" class="view active">
  <div class="period-row"><div><p class="eyebrow">TU DINERO, EN ORDEN</p><h2>Tu resumen</h2><span id="periodLabel" class="period-label">Noviembre 2026</span></div><div class="period-controls"><button id="prevMonth" aria-label="Mes anterior" class="round-btn">‹</button><button id="nextMonth" aria-label="Mes siguiente" class="round-btn">›</button></div></div>
  <article class="balance-card dashboard-link" data-home-target="balance" role="button" tabindex="0" aria-label="Abrir balance mensual"><div class="balance-top"><span>Disponible total</span><span class="month-chip" id="balanceMonth">Nov 2026</span></div><div class="balance-value" id="totalBalance">$ 0</div><div class="account-grid"><div><span>Cuenta digital</span><strong id="digitalBalance">$ 0</strong></div><div><span>Efectivo</span><strong id="cashBalance">$ 0</strong></div></div></article>
- <section class="fixed-alerts hidden compact-priority" id="fixedAlerts" aria-label="Tres pagos fijos más urgentes"><div class="alert-heading"><strong>Pagos prioritarios</strong><button type="button" class="text-button" id="openAllFixed">Ver todos</button></div><div id="alertItems" class="compact-priority-list"></div></section>
+ <section class="fixed-alerts hidden compact-priority" id="fixedAlerts" aria-label="Pagos fijos pendientes por vencimiento"><div class="alert-heading"><strong>Pagos prioritarios</strong><button type="button" class="text-button" id="openAllFixed">Ver todos</button></div><div id="alertItems" class="compact-priority-list" role="region"></div></section>
  <div class="metric-grid compact-metrics"><button type="button" class="metric metric-button" data-home-category="income"><div class="metric-icon incoming">↙</div><span>Entradas del mes</span><strong id="incomeTotal">$ 0</strong></button><button type="button" class="metric metric-button" data-home-category="variable"><div class="metric-icon outgoing">↗</div><span>Gastos variables</span><strong id="expenseTotal">$ 0</strong></button><button type="button" class="metric metric-button" data-home-category="fixed"><div class="metric-icon outgoing">◷</div><span>Gastos fijos pagados</span><strong id="fixedPaid">$ 0</strong></button><button type="button" class="metric metric-button" data-home-category="payable"><div class="metric-icon outgoing">▤</div><span>Deudas en contra</span><strong id="payableHome">$ 0</strong></button></div>
 
  

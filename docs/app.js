@@ -329,12 +329,17 @@ function enhancedRender(s){
  const plans=eligiblePlans(),fixedMovements=s.monthly.filter(isFixedExpense);
  const fixedPaid=fixedMovements.reduce((sum,x)=>sum+x.amount,0);
  const planned=plans.reduce((a,p)=>a+p.amount,0);
- const upcoming=plans.filter(p=>p.status!=="paid"&&p.amount>0).sort((a,b)=>a.due.localeCompare(b.due)||a.category.localeCompare(b.category)).slice(0,3);
+ const upcoming=plans.filter(p=>p.status!=="paid"&&p.amount>0).sort((a,b)=>a.due.localeCompare(b.due)||a.category.localeCompare(b.category));
  $("fixedPaid").textContent=money(fixedPaid);
  $("fixedAlerts").classList.toggle("hidden",!upcoming.length);
+ const priorityScroll=$("alertItems").scrollTop;
  $("alertItems").innerHTML=upcoming.map(p=>{
   return '<button type="button" class="priority-row" data-due="'+safe(p.id)+'" aria-label="Pagar '+safe(p.category)+', día '+p.due.slice(-2)+', '+money(p.amount)+'"><span class="priority-day">'+Number(p.due.slice(-2))+'</span><span class="priority-name">'+safe(p.category)+'</span><strong class="priority-amount">'+money(p.amount)+'</strong></button>';
  }).join("");
+ $("alertItems").scrollTop=priorityScroll;
+ $("alertItems").setAttribute("aria-label",upcoming.length+" pagos fijos pendientes, ordenados por vencimiento");
+ $("alertItems").tabIndex=upcoming.length>3?0:-1;
+
 
  const allOutflows=s.monthly.reduce((sum,x)=>sum+(x.kind==="expense"?x.amount:x.kind==="payment"&&amountClass(x)==="negative"?x.amount:0),0);
  const inflows=s.income,flowTotal=inflows+allOutflows;
