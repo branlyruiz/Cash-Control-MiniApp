@@ -83,7 +83,7 @@ html[data-reduce=true] *,html[data-reduce=true] *::before,html[data-reduce=true]
 .transaction-icon.variable,.transaction-icon.fixed,.transaction-icon.expense{background:#ffb18e;color:#66301d}
 
 /* Keep three compact rows visible while allowing every pending payment. */
-#dashboardView #alertItems{max-height:162px;overflow-y:auto;overscroll-behavior-y:contain;scrollbar-width:thin;scrollbar-color:#b2963c transparent;align-content:start;background:linear-gradient(#fff6d8 30%,transparent) center top,linear-gradient(transparent,#fff6d8 70%) center bottom,linear-gradient(#af8f2530,transparent) center top,linear-gradient(transparent,#af8f2530) center bottom;background-size:100% 20px,100% 20px,100% 12px,100% 12px;background-repeat:no-repeat;background-attachment:local,local,scroll,scroll}
-#dashboardView #alertItems:focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:12px}
+#dashboardView #alertItems{border-radius:0;max-height:162px;overflow-y:auto;overscroll-behavior-y:contain;scrollbar-width:thin;scrollbar-color:#b2963c transparent;align-content:start;background:linear-gradient(#fff6d8 30%,transparent) center top,linear-gradient(transparent,#fff6d8 70%) center bottom,linear-gradient(#af8f2530,transparent) center top,linear-gradient(transparent,#af8f2530) center bottom;background-size:100% 20px,100% 20px,100% 12px,100% 12px;background-repeat:no-repeat;background-attachment:local,local,scroll,scroll}
+#dashboardView #alertItems:focus-visible{outline:2px solid var(--brand);outline-offset:3px}
 #dashboardView #alertItems .priority-row{flex-shrink:0}
 :root[data-theme=dark] #dashboardView #alertItems{background:transparent;scrollbar-color:#c9ad59 transparent}
